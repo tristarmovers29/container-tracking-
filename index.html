@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Container Track & Trace</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#172033}
+.header{background:#102a43;color:white;padding:18px 6%;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:22px;font-weight:800;letter-spacing:.3px}
+.badge{font-size:12px;background:#1f4f73;padding:8px 12px;border-radius:20px}
+.hero{background:linear-gradient(135deg,#12344d,#176b87);color:#fff;padding:55px 6% 70px}
+.hero h1{font-size:42px;margin:0 0 12px}
+.hero p{font-size:17px;opacity:.9;margin-bottom:28px}
+.search{max-width:900px;background:white;padding:10px;border-radius:12px;display:flex;gap:10px;box-shadow:0 12px 30px #0003}
+.search input{flex:1;border:0;outline:0;padding:16px;font-size:17px;color:#172033}
+.search button{border:0;border-radius:9px;background:#0d7c66;color:#fff;padding:0 28px;font-weight:700;font-size:15px;cursor:pointer}
+.container{max-width:1200px;margin:-35px auto 50px;padding:0 20px;position:relative}
+.card{background:white;border-radius:14px;box-shadow:0 5px 22px #18324d12;padding:24px;margin-bottom:20px}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:#f7fafc;border:1px solid #e5ebf1;border-radius:10px;padding:16px}
+.label{font-size:12px;color:#68778a;text-transform:uppercase;font-weight:700}
+.value{font-size:17px;font-weight:700;margin-top:7px}
+.status{display:inline-block;padding:7px 12px;border-radius:20px;background:#e5f7f0;color:#087052;font-weight:700;font-size:13px}
+.route{display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;gap:15px;margin:20px 0}
+.routeBox{padding:18px;background:#f7fafc;border-radius:10px;border:1px solid #e5ebf1}
+.routeBox strong{display:block;font-size:19px;margin-top:5px}
+.line{height:3px;background:#b8c5d2;position:relative}
+.dot{width:13px;height:13px;border-radius:50%;background:#0d7c66;position:absolute;top:-5px}
+.dot.left{left:0}.dot.right{right:0}
+.timeline{border-left:3px solid #d7e1e9;margin:25px 0 5px 12px;padding-left:25px}
+.event{position:relative;margin:0 0 24px}
+.event:before{content:"";position:absolute;left:-34px;top:4px;width:12px;height:12px;background:#0d7c66;border:3px solid white;border-radius:50%;box-shadow:0 0 0 1px #b7c9d5}
+.event .date{font-size:12px;color:#6d7c8e;font-weight:700}
+.event h4{margin:5px 0}.event p{margin:0;color:#526274}
+.footer{text-align:center;color:#758396;font-size:13px;padding:20px}
+.error{color:#a52d2d;background:#fff0f0;border:1px solid #ffd0d0;padding:15px;border-radius:10px}
+@media(max-width:800px){.hero h1{font-size:31px}.search{flex-direction:column}.search button{height:50px}.grid{grid-template-columns:repeat(2,1fr)}.route{grid-template-columns:1fr}.line{display:none}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="logo">🚢 CONTAINER TRACK & TRACE</div>
+  <div class="badge">MULTI-CARRIER TRACKING</div>
+</header>
+
+<section class="hero">
+  <h1>Track Your Container</h1>
+  <p>Enter a container number to view shipment status, vessel details, ETA and movement history.</p>
+  <div class="search">
+    <input id="containerNo" placeholder="Enter container number e.g. MSCU1234567" autocomplete="off">
+    <button onclick="trackContainer()">TRACK CONTAINER</button>
+  </div>
+</section>
+
+<main class="container">
+  <div id="welcome" class="card">
+    <h2>Container Tracking Center</h2>
+    <p>Search by container number. This standalone version uses demo tracking data until a live tracking API is connected.</p>
+    <p><b>Demo:</b> Try <b>MSCU1234567</b></p>
+  </div>
+
+  <div id="error" class="error hidden"></div>
+
+  <div id="result" class="hidden">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="label">Container Number</div>
+          <h2 id="rContainer" style="margin:6px 0 0"></h2>
+        </div>
+        <div id="rStatus" class="status">IN TRANSIT</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Shipment Overview</h3>
+      <div class="grid">
+        <div class="stat"><div class="label">Shipping Line</div><div class="value" id="rLine"></div></div>
+        <div class="stat"><div class="label">Vessel</div><div class="value" id="rVessel"></div></div>
+        <div class="stat"><div class="label">Voyage</div><div class="value" id="rVoyage"></div></div>
+        <div class="stat"><div class="label">Current Location</div><div class="value" id="rLocation"></div></div>
+        <div class="stat"><div class="label">ETD</div><div class="value" id="rETD"></div></div>
+        <div class="stat"><div class="label">ETA</div><div class="value" id="rETA"></div></div>
+        <div class="stat"><div class="label">Last Update</div><div class="value" id="rUpdated"></div></div>
+        <div class="stat"><div class="label">Container Type</div><div class="value" id="rType"></div></div>
+      </div>
+
+      <div class="route">
+        <div class="routeBox"><div class="label">Port of Loading</div><strong id="rPOL"></strong></div>
+        <div class="line"><span class="dot left"></span><span class="dot right"></span></div>
+        <div class="routeBox"><div class="label">Port of Discharge</div><strong id="rPOD"></strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Container Movement History</h3>
+      <div id="timeline" class="timeline"></div>
+    </div>
+  </div>
+</main>
+
+<div class="footer">Container Track & Trace • Independent tracking portal</div>
+
+<script>
+const demo = {
+  "MSCU1234567":{
+    line:"MSC", vessel:"MSC EXAMPLE", voyage:"123A", location:"Colombo, Sri Lanka",
+    etd:"10 Oct 2026", eta:"25 Nov 2026", updated:"07 Oct 2026 10:30",
+    type:"40HC", pol:"Port Qasim, Pakistan", pod:"New York, USA", status:"IN TRANSIT",
+    events:[
+      ["07 Oct 2026","In Transit","Container is currently in transit."],
+      ["05 Oct 2026","Transshipment","Container moved to transshipment connection."],
+      ["09 Oct 2026","Vessel Departed","Vessel departed from Port Qasim."],
+      ["07 Oct 2026","Loaded on Vessel","Container loaded for ocean transport."],
+      ["05 Oct 2026","Gate In","Container gated in at terminal."]
+    ]
+  }
+};
+
+function trackContainer(){
+  const input=document.getElementById("containerNo");
+  const no=input.value.trim().toUpperCase();
+  const err=document.getElementById("error");
+  const welcome=document.getElementById("welcome");
+  const result=document.getElementById("result");
+  err.classList.add("hidden");
+  if(!no){
+    err.textContent="Please enter a container number.";
+    err.classList.remove("hidden"); return;
+  }
+  const d=demo[no];
+  if(!d){
+    result.classList.add("hidden");
+    err.textContent="No demo record found for "+no+". Live carrier tracking will be connected to this search in the next step.";
+    err.classList.remove("hidden"); return;
+  }
+  welcome.classList.add("hidden");
+  result.classList.remove("hidden");
+  set("rContainer",no); set("rLine",d.line); set("rVessel",d.vessel);
+  set("rVoyage",d.voyage); set("rLocation",d.location); set("rETD",d.etd);
+  set("rETA",d.eta); set("rUpdated",d.updated); set("rType",d.type);
+  set("rPOL",d.pol); set("rPOD",d.pod); set("rStatus",d.status);
+  document.getElementById("timeline").innerHTML=d.events.map(e=>
+    `<div class="event"><div class="date">${e[0]}</div><h4>${e[1]}</h4><p>${e[2]}</p></div>`
+  ).join("");
+}
+function set(id,v){document.getElementById(id).textContent=v}
+document.getElementById("containerNo").addEventListener("keydown",e=>{
+  if(e.key==="Enter") trackContainer();
+});
+</script>
+</body>
+</html>
