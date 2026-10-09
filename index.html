@@ -1,1369 +1,975 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Container Track & Trace</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Container Track & Trace</title>
 
-  <style>
-    :root {
-      --bg: #f3f6fb;
-      --card: #ffffff;
-      --text: #172033;
-      --muted: #69758a;
-      --primary: #174ea6;
-      --primary2: #2563eb;
-      --border: #e1e7f0;
-      --success: #087443;
-      --danger: #b42318;
-      --shadow: 0 8px 28px rgba(26, 45, 80, .08);
-    }
+<style>
+* { box-sizing: border-box; }
 
-    * { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f7fb;
+  color: #172033;
+}
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-    }
+.header {
+  background: #102a43;
+  color: white;
+  padding: 18px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-    .topbar {
-      background: linear-gradient(120deg, #102c5b, #1c56a5);
-      color: white;
-      padding: 26px 18px 34px;
-    }
+.logo { font-size: 22px; font-weight: 800; }
 
-    .top-inner, .container {
-      width: min(1120px, 94%);
-      margin: auto;
-    }
+.badge {
+  font-size: 12px;
+  background: #1f4f73;
+  padding: 8px 12px;
+  border-radius: 20px;
+}
 
-    .brand {
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      opacity: .85;
-      font-weight: bold;
-    }
+.hero {
+  background: linear-gradient(135deg, #12344d, #176b87);
+  color: white;
+  padding: 55px 6% 70px;
+}
 
-    h1 {
-      margin: 12px 0 8px;
-      font-size: clamp(25px, 4vw, 38px);
-    }
+.hero h1 { font-size: 42px; margin: 0 0 12px; }
 
-    .subtitle {
-      color: #e0eaff;
-      line-height: 1.5;
-      margin: 0;
-    }
+.hero p {
+  font-size: 17px;
+  line-height: 1.6;
+  opacity: .9;
+  margin-bottom: 28px;
+}
 
-    .container { padding-bottom: 40px; }
+.search {
+  max-width: 900px;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 12px 30px #0003;
+}
 
-    .search-panel {
-      margin-top: -20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-      position: relative;
-    }
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 16px;
+  font-size: 17px;
+  color: #172033;
+}
 
-    .search-title {
-      font-size: 17px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
+.search button {
+  border: 0;
+  border-radius: 9px;
+  background: #0d7c66;
+  color: white;
+  padding: 15px 24px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
 
-    .search-row {
-      display: flex;
-      gap: 10px;
-    }
+.search button:disabled { opacity: .65; cursor: wait; }
 
-    input {
-      width: 100%;
-      min-width: 0;
-      border: 1px solid #cbd5e1;
-      border-radius: 9px;
-      padding: 14px;
-      font-size: 16px;
-      outline: none;
-    }
+.container {
+  max-width: 1200px;
+  margin: -35px auto 50px;
+  padding: 0 20px;
+  position: relative;
+}
 
-    input:focus {
-      border-color: var(--primary2);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
-    }
+.card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 5px 22px #18324d12;
+  padding: 24px;
+  margin-bottom: 20px;
+}
 
-    button {
-      border: 0;
-      border-radius: 9px;
-      background: var(--primary2);
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      padding: 0 23px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+.hidden { display: none !important; }
 
-    button:hover { background: var(--primary); }
-    button:disabled { opacity: .65; cursor: wait; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
 
-    .message {
-      display: none;
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 9px;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
+.stat {
+  background: #f7fafc;
+  border: 1px solid #e5ebf1;
+  border-radius: 10px;
+  padding: 16px;
+  overflow-wrap: anywhere;
+}
 
-    .message.info {
-      display: block;
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
+.label {
+  font-size: 12px;
+  color: #68778a;
+  text-transform: uppercase;
+  font-weight: 700;
+}
 
-    .message.error {
-      display: block;
-      background: #fef3f2;
-      color: var(--danger);
-    }
+.value {
+  font-size: 17px;
+  font-weight: 700;
+  margin-top: 7px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
 
-    .message.success {
-      display: block;
-      background: #ecfdf3;
-      color: var(--success);
-    }
+.status {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: #e5f7f0;
+  color: #087052;
+  font-weight: 700;
+  font-size: 13px;
+  height: fit-content;
+}
 
-    #results { display: none; margin-top: 22px; }
+.route {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
 
-    .section-heading {
-      font-size: 20px;
-      margin: 25px 0 13px;
-    }
+.routeBox {
+  padding: 18px;
+  background: #f7fafc;
+  border-radius: 10px;
+  border: 1px solid #e5ebf1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 19px;
-      box-shadow: var(--shadow);
-      min-width: 0;
-    }
+.routeBox strong {
+  display: block;
+  font-size: 19px;
+  margin-top: 8px;
+}
 
-    .hero {
-      background: linear-gradient(120deg, #ffffff, #edf4ff);
-      border: 1px solid #d7e5fb;
-      border-radius: 15px;
-      padding: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+.line { height: 3px; background: #b8c5d2; position: relative; }
 
-    .eyebrow {
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
+.dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #0d7c66;
+  position: absolute;
+  top: -5px;
+}
 
-    .reference {
-      font-size: clamp(22px, 4vw, 32px);
-      font-weight: bold;
-      margin-top: 7px;
-      overflow-wrap: anywhere;
-    }
+.dot.left { left: 0; }
+.dot.right { right: 0; }
 
-    .status-pill {
-      display: inline-block;
-      background: #e0f2fe;
-      color: #075985;
-      padding: 8px 12px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: bold;
-    }
+.timeline {
+  border-left: 3px solid #d7e1e9;
+  margin: 25px 0 5px 12px;
+  padding-left: 25px;
+}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
+.event {
+  position: relative;
+  margin: 0 0 24px;
+  overflow-wrap: anywhere;
+}
 
-    .stat {
-      border: 1px solid var(--border);
-      background: white;
-      padding: 17px;
-      border-radius: 12px;
-      min-width: 0;
-    }
+.event:before {
+  content: "";
+  position: absolute;
+  left: -34px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  background: #0d7c66;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #b7c9d5;
+}
 
-    .stat-label {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
+.event .date { font-size: 12px; color: #6d7c8e; font-weight: 700; }
+.event h4 { margin: 5px 0; }
+.event p { margin: 0; color: #526274; line-height: 1.5; }
 
-    .stat-value {
-      font-size: 17px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-      line-height: 1.4;
-    }
+.error {
+  color: #a52d2d;
+  background: #fff0f0;
+  border: 1px solid #ffd0d0;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow-wrap: anywhere;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
+.info {
+  color: #245779;
+  background: #eef8ff;
+  border: 1px solid #cce8fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
 
-    .field {
-      border-bottom: 1px solid #edf0f5;
-      padding: 12px 0;
-      min-width: 0;
-    }
+.footer {
+  text-align: center;
+  color: #758396;
+  font-size: 13px;
+  padding: 20px;
+}
 
-    .field:last-child { border-bottom: 0; }
+@media (max-width: 800px) {
+  .hero h1 { font-size: 31px; }
+  .search { flex-direction: column; }
+  .search button { min-height: 50px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .route { grid-template-columns: 1fr; }
+  .line { display: none; }
+}
 
-    .field-label {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 7px;
-    }
-
-    .field-value {
-      font-size: 14px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-      white-space: pre-line;
-      line-height: 1.5;
-    }
-
-    .route {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .route-point { min-width: 0; }
-
-    .route-code {
-      font-size: 24px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-    }
-
-    .route-name {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 6px;
-      overflow-wrap: anywhere;
-    }
-
-    .route-arrow {
-      color: var(--primary2);
-      font-size: 25px;
-      padding: 0 8px;
-    }
-
-    .timeline {
-      position: relative;
-      padding-left: 24px;
-    }
-
-    .timeline:before {
-      content: "";
-      position: absolute;
-      top: 6px;
-      bottom: 8px;
-      left: 6px;
-      width: 2px;
-      background: #dbe5f5;
-    }
-
-    .event {
-      position: relative;
-      padding: 0 0 22px 10px;
-      overflow-wrap: anywhere;
-    }
-
-    .event:last-child { padding-bottom: 0; }
-
-    .event:before {
-      content: "";
-      position: absolute;
-      left: -23px;
-      top: 4px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--primary2);
-      border: 3px solid #dbeafe;
-    }
-
-    .event-title {
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .event-date {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 5px;
-    }
-
-    .event-location {
-      font-size: 13px;
-      margin-top: 5px;
-      line-height: 1.5;
-    }
-
-    .empty {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 24px 10px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    @media (max-width: 760px) {
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .search-row { flex-direction: column; }
-      .search-row button { padding: 14px; }
-    }
-
-    @media (max-width: 460px) {
-      .grid { grid-template-columns: 1fr; }
-      .topbar { padding-top: 22px; }
-      .card { padding: 15px; }
-      .route-code { font-size: 19px; }
-    }
-  </style>
+@media (max-width: 460px) {
+  .grid { grid-template-columns: 1fr; }
+  .hero { padding-top: 38px; }
+  .card { padding: 18px; }
+}
+</style>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="top-inner">
-      <div class="brand">Shipment Visibility</div>
-      <h1>Container Track &amp; Trace</h1>
-      <p class="subtitle">Track your container, vessel schedule, route and movement history.</p>
-    </div>
-  </header>
 
-  <main class="container">
-    <section class="search-panel">
-      <div class="search-title">Track Your Shipment</div>
+<header class="header">
+  <div class="logo">🚢 CONTAINER TRACK & TRACE</div>
+  <div class="badge">MULTI-CARRIER TRACKING</div>
+</header>
 
-      <form id="trackingForm" class="search-row">
-        <input
-          id="referenceInput"
-          type="text"
-          placeholder="Enter container number or tracking reference"
-          autocomplete="off"
-          aria-label="Container number or tracking reference"
-          required
-        >
-        <button id="trackButton" type="submit">Track Shipment</button>
-      </form>
+<section class="hero">
+  <h1>Track Your Container</h1>
+  <p>
+    Enter a container number to check shipment status,
+    vessel details, estimated dates and available movement history.
+  </p>
 
-      <div id="message" class="message" role="status" aria-live="polite"></div>
-    </section>
+  <div class="search">
+    <input id="containerNo"
+      placeholder="Enter container number e.g. MEDU9270627"
+      autocomplete="off"
+      aria-label="Container, booking or bill of lading number">
+    <button id="trackButton" type="button" onclick="trackContainer()">
+      TRACK CONTAINER
+    </button>
+  </div>
+</section>
 
-    <section id="results">
-      <div class="hero">
+<main class="container">
+
+  <div id="welcome" class="card">
+    <h2>Container Tracking Center</h2>
+    <p>
+      Search using a container number, booking reference or bill of lading
+      reference supported by the tracking provider.
+    </p>
+    <p><b>Test reference:</b> MEDU9270627</p>
+  </div>
+
+  <div id="loading" class="info hidden">
+    Contacting the tracking service. Please wait...
+  </div>
+
+  <div id="error" class="error hidden" role="alert"></div>
+
+  <div id="result" class="hidden">
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div class="eyebrow">Tracking Reference</div>
-          <div id="rReference" class="reference">-</div>
+          <div class="label">Container / Reference Number</div>
+          <h2 id="rContainer" style="margin:6px 0 0;overflow-wrap:anywhere"></h2>
         </div>
-        <div id="rStatus" class="status-pill">Shipment details</div>
+        <div id="rStatus" class="status">STATUS UNKNOWN</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Shipment Overview</h3>
+
+      <div class="grid">
+        <div class="stat">
+          <div class="label">Shipping Line</div>
+          <div class="value" id="rLine">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Vessel</div>
+          <div class="value" id="rVessel">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Voyage</div>
+          <div class="value" id="rVoyage">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Last Known Location</div>
+          <div class="value" id="rLocation">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Departure / ETD</div>
+          <div class="value" id="rETD">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Arrival / ETA</div>
+          <div class="value" id="rETA">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Transit Days</div>
+          <div class="value" id="rTransitDays">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Last Update</div>
+          <div class="value" id="rUpdated">Not available</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Container Type / Size</div>
+          <div class="value" id="rType">Not provided by API</div>
+        </div>
       </div>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-label">Shipping Line</div>
-          <div class="stat-value" id="rShippingLine">Not available</div>
+      <div class="route">
+        <div class="routeBox">
+          <div class="label">Port of Loading</div>
+          <strong id="rPOL">Not available</strong>
         </div>
-        <div class="stat">
-          <div class="stat-label">Vessel</div>
-          <div class="stat-value" id="rVessel">Not available</div>
+
+        <div class="line">
+          <span class="dot left"></span>
+          <span class="dot right"></span>
         </div>
-        <div class="stat">
-          <div class="stat-label">Voyage</div>
-          <div class="stat-value" id="rVoyage">Not available</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Container Type / Size</div>
-          <div class="stat-value" id="rType">Not provided by API</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">ETD</div>
-          <div class="stat-value" id="rETD">Not available</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">ETA</div>
-          <div class="stat-value" id="rETA">Not available</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Transit Days</div>
-          <div class="stat-value" id="rTransitDays">Not available</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Last Update</div>
-          <div class="stat-value" id="rLastUpdate">Not available</div>
+
+        <div class="routeBox">
+          <div class="label">Port of Discharge</div>
+          <strong id="rPOD">Not available</strong>
         </div>
       </div>
 
-      <h2 class="section-heading">Shipment Overview</h2>
-      <section class="card">
-        <div class="grid">
-          <div class="field">
-            <div class="field-label">Container / Reference</div>
-            <div class="field-value" id="rContainer">-</div>
-          </div>
-          <div class="field">
-            <div class="field-label">Current Status</div>
-            <div class="field-value" id="rCurrentStatus">-</div>
-          </div>
-          <div class="field">
-            <div class="field-label">Last Known Location</div>
-            <div class="field-value" id="rLocation">Not available</div>
-          </div>
-          <div class="field">
-            <div class="field-label">Container Type / Size Details</div>
-            <div class="field-value" id="rTypeDetails">Not provided by API</div>
-          </div>
-          <div class="field">
-            <div class="field-label">Estimated Departure</div>
-            <div class="field-value" id="rETDDetails">Not available</div>
-          </div>
-          <div class="field">
-            <div class="field-label">Estimated Arrival</div>
-            <div class="field-value" id="rETADetails">Not available</div>
-          </div>
-        </div>
-      </section>
+      <div id="routeDates" class="label"></div>
+    </div>
 
-      <h2 class="section-heading">Shipment Route</h2>
-      <section class="card">
-        <div class="route">
-          <div class="route-point">
-            <div class="eyebrow">Port of Loading</div>
-            <div id="rPOL" class="route-code">-</div>
-            <div id="rPOLName" class="route-name">Not available</div>
-          </div>
-          <div class="route-arrow" aria-hidden="true">→</div>
-          <div class="route-point">
-            <div class="eyebrow">Port of Discharge</div>
-            <div id="rPOD" class="route-code">-</div>
-            <div id="rPODName" class="route-name">Not available</div>
-          </div>
-        </div>
-      </section>
+    <div class="card">
+      <h3>Container Movement History</h3>
+      <div id="timeline" class="timeline"></div>
+      <p id="historyNote" style="color:#68778a;font-size:13px"></p>
+    </div>
 
-      <h2 class="section-heading">Movement History</h2>
-      <section class="card">
-        <div id="rHistory" class="timeline">
-          <div class="empty">No movement history available.</div>
-        </div>
-      </section>
+    <div class="card">
+      <div class="label">Tracking Reference</div>
+      <div id="rReference" class="value"></div>
+      <div class="label" style="margin-top:12px">Data Last Updated By Provider</div>
+      <div id="rCache" class="value">Not available</div>
+    </div>
 
-      <div class="footer">
-        Tracking information is displayed according to the data returned by the tracking API.
-      </div>
-    </section>
-  </main>
+  </div>
+</main>
 
-  <script>
-    "use strict";
+<div class="footer">
+  Container Track & Trace • Independent tracking portal
+</div>
 
-    /*
-     * Existing tracking API endpoint.
-     * The API must support JSONP for this GitHub Pages integration.
-     */
-    const API_URL =
-      "https://script.google.com/macros/s/AKfycbzNyAKEbexR9_NGYCrUrG0K7aVgPbDarDMFHFK0fiIo8dnrjrxGyOaD2no-EMsKCYA/exec";
+<script>
+"use strict";
 
-    const $ = id => document.getElementById(id);
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbzNyAKEbexR9_NGYCrUrG0K7aVgPbDarDMFHFK0fiIo8dnrjrxGyOaD2no-EMsKCYA/exec";
 
-    let requestTimeout = null;
-    let activeScript = null;
-    let requestNumber = 0;
+let requestNumber = 0;
 
-    $("trackingForm").addEventListener("submit", function (event) {
-      event.preventDefault();
-      trackContainer();
+function trackContainer() {
+  const input = document.getElementById("containerNo");
+  const no = input.value.trim().toUpperCase();
+
+  hideError();
+  hideResult();
+
+  if (!no) {
+    showError("Please enter a container or shipment reference number.");
+    input.focus();
+    return;
+  }
+
+  const currentRequest = ++requestNumber;
+  const button = document.getElementById("trackButton");
+
+  button.disabled = true;
+  button.textContent = "TRACKING...";
+  document.getElementById("loading").classList.remove("hidden");
+  document.getElementById("welcome").classList.add("hidden");
+
+  const callbackName =
+    "trackingCallback_" + Date.now() + "_" + currentRequest;
+
+  const script = document.createElement("script");
+  let finished = false;
+
+  const timeoutId = setTimeout(function() {
+    finish();
+    if (currentRequest === requestNumber) {
+      showError("The tracking request timed out. Please try again.");
+    }
+  }, 45000);
+
+  function finish() {
+    if (finished) return;
+    finished = true;
+
+    clearTimeout(timeoutId);
+    script.remove();
+    delete window[callbackName];
+
+    button.disabled = false;
+    button.textContent = "TRACK CONTAINER";
+    document.getElementById("loading").classList.add("hidden");
+  }
+
+  window[callbackName] = function(response) {
+    finish();
+
+    if (currentRequest !== requestNumber) return;
+
+    if (!response || response.success !== true) {
+      showError(
+        response && (response.error || response.message) ||
+        "Tracking failed. Please check the reference and retry."
+      );
+      return;
+    }
+
+    const providerData = response.data || {};
+    const shipment = providerData.shipment;
+
+    if (!shipment) {
+      showError(
+        "The tracking provider responded, but no shipment record was returned for " +
+        no + "."
+      );
+      return;
+    }
+
+    renderShipment(shipment, no);
+  };
+
+  script.onerror = function() {
+    finish();
+    if (currentRequest === requestNumber) {
+      showError(
+        "Unable to connect to the tracking service. Check the deployment and try again."
+      );
+    }
+  };
+
+  const separator = API_URL.includes("?") ? "&" : "?";
+
+  script.src = API_URL + separator +
+    "action=track" +
+    "&referenceNumber=" + encodeURIComponent(no) +
+    "&callback=" + encodeURIComponent(callbackName);
+
+  document.body.appendChild(script);
+}
+
+function firstValue() {
+  for (let i = 0; i < arguments.length; i++) {
+    const value = arguments[i];
+
+    if (value !== null && value !== undefined && value !== "") {
+      if (typeof value === "string" && value.trim() === "") continue;
+      if (typeof value === "object") continue;
+      return value;
+    }
+  }
+
+  return "";
+}
+
+/*
+ * Parse date strings carefully.
+ * Supports ISO dates, timestamps, DD-MM-YYYY and DD/MM/YYYY.
+ */
+function parseTransitDate(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "object") {
+    if (value.date) return parseTransitDate(value.date);
+    return null;
+  }
+
+  const text = String(value).trim();
+
+  // DD-MM-YYYY or DD/MM/YYYY
+  let match = text.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+
+  if (match) {
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      return null;
+    }
+
+    return date;
+  }
+
+  // YYYY-MM-DD and ISO timestamps
+  match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+  if (match) {
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      return null;
+    }
+
+    return date;
+  }
+
+  const parsed = new Date(text);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function calculateTransitDays(etdValue, etaValue) {
+  const etd = parseTransitDate(etdValue);
+  const eta = parseTransitDate(etaValue);
+
+  if (!etd || !eta) return "ETD / ETA unavailable";
+
+  const start = Date.UTC(
+    etd.getUTCFullYear(),
+    etd.getUTCMonth(),
+    etd.getUTCDate()
+  );
+
+  const end = Date.UTC(
+    eta.getUTCFullYear(),
+    eta.getUTCMonth(),
+    eta.getUTCDate()
+  );
+
+  const days = Math.round((end - start) / 86400000);
+
+  if (days < 0) return "Check ETD / ETA";
+
+  return days + (days === 1 ? " day" : " days");
+}
+
+function renderShipment(shipment, searchedNumber) {
+  const s = shipment || {};
+  const route = s.route || {};
+
+  const pol = route.portOfLoading || {};
+  const pod = route.portOfDischarge || {};
+  const receipt = route.placeOfReceipt || {};
+  const delivery = route.placeOfDelivery || {};
+
+  const originLocation = pol.location || receipt.location || {};
+  const destinationLocation = pod.location || delivery.location || {};
+
+  const departure = pol.departure || {};
+  const arrival = pod.arrival || {};
+
+  const departureTransport = departure.transport || {};
+  const arrivalTransport = arrival.transport || {};
+
+  const transport = arrivalTransport.name
+    ? arrivalTransport
+    : departureTransport;
+
+  const refs = s.references || {};
+  const carrier = s.carrier || {};
+  const equipment = s.equipment || {};
+  const container = s.container || {};
+  const details = s.details || {};
+
+  /*
+   * Look for ETD/ETA in several possible provider fields.
+   * Exact fields depend on the tracking API response.
+   */
+  const etdValue = firstValue(
+    departure.date,
+    pol.departureDate,
+    pol.etd,
+    pol.ETD,
+    s.etd,
+    s.ETD,
+    s.estimatedDeparture,
+    s.departureDate
+  );
+
+  const etaValue = firstValue(
+    arrival.date,
+    pod.arrivalDate,
+    pod.eta,
+    pod.ETA,
+    s.eta,
+    s.ETA,
+    s.estimatedArrival,
+    s.arrivalDate
+  );
+
+  const containerNumber = firstValue(
+    refs.containerNumber,
+    s.containerNumber,
+    searchedNumber
+  );
+
+  setText("rContainer", containerNumber);
+  setText("rStatus", humanize(s.status || "UNKNOWN"));
+  setText("rLine", firstValue(carrier.name, carrier.code));
+  setText("rVessel", transport.name);
+  setText("rVoyage", transport.voyageNumber);
+
+  setText(
+    "rLocation",
+    firstValue(
+      s.lastKnownLocation && s.lastKnownLocation.name,
+      typeof s.lastKnownLocation === "string" ? s.lastKnownLocation : "",
+      destinationLocation.name,
+      originLocation.name
+    ) || "Location not provided"
+  );
+
+  setText("rETD", formatDate(etdValue));
+  setText("rETA", formatDate(etaValue));
+
+  // Transit Days: calendar-day difference between ETD and ETA.
+  setText(
+    "rTransitDays",
+    calculateTransitDays(etdValue, etaValue)
+  );
+
+  setText("rUpdated", formatDate(s.updatedAt, true));
+
+  const containerType = firstValue(
+    equipment.type,
+    equipment.containerType,
+    equipment.equipmentType,
+    equipment.isoCode,
+    equipment.sizeType,
+    equipment.size,
+    equipment.description,
+
+    container.type,
+    container.containerType,
+    container.equipmentType,
+    container.isoCode,
+    container.sizeType,
+    container.size,
+    container.description,
+
+    s.containerType,
+    s.equipmentType,
+    s.container_type,
+    s.equipment_type,
+    s.isoCode,
+    s.sizeType,
+    s.containerSize,
+    s.container_size,
+
+    details.containerType,
+    details.equipmentType,
+    details.containerSize,
+
+    refs.containerType
+  );
+
+  setText("rType", containerType || "Not provided by API");
+
+  setText("rPOL", originLocation.name);
+  setText("rPOD", destinationLocation.name);
+
+  const routeDates = [];
+
+  if (etdValue) {
+    routeDates.push(
+      "Departure: " + formatDate(etdValue) +
+      (departure.isActual === true ? " (Actual)" :
+       departure.isActual === false ? " (Estimated)" : "")
+    );
+  }
+
+  if (etaValue) {
+    routeDates.push(
+      "Arrival: " + formatDate(etaValue) +
+      (arrival.isActual === true ? " (Actual)" :
+       arrival.isActual === false ? " (Estimated)" : "")
+    );
+  }
+
+  setText("routeDates", routeDates.join(" • "));
+
+  setText(
+    "rReference",
+    firstValue(
+      refs.blNumber,
+      refs.bookingNumber,
+      refs.containerNumber,
+      s.referenceNumber,
+      searchedNumber
+    )
+  );
+
+  setText("rCache", formatDate(s.cacheExpiresAt, true));
+
+  renderHistory(s, route);
+
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("welcome").classList.add("hidden");
+}
+
+function renderHistory(shipment, route) {
+  const timeline = document.getElementById("timeline");
+  const historyNote = document.getElementById("historyNote");
+
+  timeline.replaceChildren();
+  historyNote.textContent = "";
+
+  const possibleEvents = [
+    shipment.events,
+    shipment.milestones,
+    shipment.trackingEvents,
+    shipment.containers &&
+      shipment.containers[0] &&
+      shipment.containers[0].events
+  ];
+
+  let events = [];
+
+  for (let i = 0; i < possibleEvents.length; i++) {
+    if (Array.isArray(possibleEvents[i]) && possibleEvents[i].length > 0) {
+      events = possibleEvents[i];
+      break;
+    }
+  }
+
+  if (events.length > 0) {
+    events.forEach(function(event) {
+      const location = event.location;
+
+      const locationName = typeof location === "string"
+        ? location
+        : location && location.name
+          ? location.name
+          : "";
+
+      addEvent(
+        event.date || event.eventDate || event.timestamp || event.datetime,
+        event.description || event.eventDescription ||
+          event.eventType || event.status || event.type ||
+          "Shipment update",
+        locationName
+      );
     });
 
-    function showMessage(text, type) {
-      const el = $("message");
-      el.textContent = text;
-      el.className = "message " + (type || "info");
-    }
+    return;
+  }
 
-    function hideMessage() {
-      const el = $("message");
-      el.textContent = "";
-      el.className = "message";
-    }
+  const milestones = [];
+  const pol = route.portOfLoading || {};
+  const pod = route.portOfDischarge || {};
+  const receipt = route.placeOfReceipt || {};
+  const delivery = route.placeOfDelivery || {};
 
-    function setText(id, value, fallback) {
-      const el = $(id);
-      if (!el) return;
+  if (receipt.arrival && receipt.arrival.date) {
+    milestones.push({
+      date: receipt.arrival.date,
+      title: "Arrived at Place of Receipt",
+      location: receipt.location && receipt.location.name
+    });
+  }
 
-      const cleaned = value === null || value === undefined
-        ? ""
-        : String(value).trim();
+  if (pol.departure && pol.departure.date) {
+    milestones.push({
+      date: pol.departure.date,
+      title: pol.departure.isActual === true
+        ? "Vessel Departed"
+        : "Estimated Vessel Departure",
+      location: pol.location && pol.location.name
+    });
+  }
 
-      el.textContent = cleaned || fallback || "Not available";
-    }
-
-    function isUseful(value) {
-      if (value === null || value === undefined) return false;
-      if (typeof value === "object") return false;
-
-      const s = String(value).trim();
-      if (!s) return false;
-
-      return ![
-        "null", "undefined", "n/a", "na", "not available",
-        "not provided", "-", "--"
-      ].includes(s.toLowerCase());
-    }
-
-    function firstValue() {
-      for (const value of arguments) {
-        if (isUseful(value)) return value;
-      }
-      return "";
-    }
-
-    function normalizeKey(key) {
-      return String(key || "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-    }
-
-    /*
-     * Walk nested objects and arrays. This helps when an API changes
-     * the location or nesting of a field.
-     */
-    function walkObjects(root, callback) {
-      const seen = new Set();
-
-      function visit(value, path, depth) {
-        if (value === null || value === undefined || depth > 12) return;
-        if (typeof value !== "object") return;
-        if (seen.has(value)) return;
-
-        seen.add(value);
-
-        if (Array.isArray(value)) {
-          value.forEach((item, index) => {
-            visit(item, path.concat(String(index)), depth + 1);
-          });
-          return;
-        }
-
-        Object.keys(value).forEach(key => {
-          const child = value[key];
-          callback(key, child, value, path);
-
-          if (child && typeof child === "object") {
-            visit(child, path.concat(key), depth + 1);
-          }
-        });
-      }
-
-      visit(root, [], 0);
-    }
-
-    function findByKeys(root, keys) {
-      const wanted = new Set(keys.map(normalizeKey));
-      let result = "";
-
-      walkObjects(root, function (key, value) {
-        if (result || !wanted.has(normalizeKey(key))) return;
-        if (isUseful(value)) result = value;
-      });
-
-      return result;
-    }
-
-    function findByKeyPattern(root, pattern, rejectPattern) {
-      let result = "";
-
-      walkObjects(root, function (key, value) {
-        if (result || !isUseful(value)) return;
-
-        const normalized = normalizeKey(key);
-
-        if (!pattern.test(normalized)) return;
-        if (rejectPattern && rejectPattern.test(normalized)) return;
-
-        result = value;
-      });
-
-      return result;
-    }
-
-    function getPath(root, path) {
-      return path.split(".").reduce((value, key) => {
-        if (value === null || value === undefined) return undefined;
-        return value[key];
-      }, root);
-    }
-
-    function firstPath(root, paths) {
-      for (const path of paths) {
-        const value = getPath(root, path);
-        if (isUseful(value)) return value;
-      }
-      return "";
-    }
-
-    function extractShipment(payload) {
-      if (!payload || typeof payload !== "object") return {};
-
-      const candidates = [
-        payload.data && payload.data.shipment,
-        payload.shipment,
-        payload.data && payload.data.container,
-        payload.container,
-        payload.data && payload.data.result,
-        payload.result,
-        payload.data,
-        payload
-      ];
-
-      for (const candidate of candidates) {
-        if (candidate && typeof candidate === "object") {
-          return candidate;
-        }
-      }
-
-      return payload;
-    }
-
-    function getContainerType(shipment, payload) {
-      const roots = [shipment, payload].filter(Boolean);
-
-      const exactKeys = [
-        "containerSize",
-        "container_size",
-        "equipmentSize",
-        "equipment_size",
-        "containerTypeSize",
-        "container_type_size",
-        "equipmentType",
-        "equipment_type",
-        "equipmentTypeCode",
-        "equipment_type_code",
-        "isoCode",
-        "iso_code",
-        "isoType",
-        "iso_type",
-        "sizeType",
-        "size_type",
-        "containerIsoCode",
-        "container_iso_code",
-        "containerType",
-        "container_type",
-        "equipmentCode",
-        "equipment_code",
-        "containerSizeType",
-        "container_size_type",
-        "sizeCode",
-        "size_code"
-      ];
-
-      const genericKeys = [
-        "type",
-        "size",
-        "equipment",
-        "container"
-      ];
-
-      for (const root of roots) {
-        const exact = findByKeys(root, exactKeys);
-        const normalized = cleanContainerType(exact);
-        if (normalized) return normalized;
-      }
-
-      for (const root of roots) {
-        const patternValue = findByKeyPattern(
-          root,
-          /(containersize|equipmentsize|containersizetype|equipmenttype|isocode|isotype|sizetype|equipmentcode|sizecode)/,
-          /(description|count|total|quantity|numberof|movement|event)/
-        );
-
-        const normalized = cleanContainerType(patternValue);
-        if (normalized) return normalized;
-      }
-
-      /*
-       * Only accept generic "type" or "size" fields if their values
-       * look like actual equipment sizes/types.
-       */
-      for (const root of roots) {
-        for (const key of genericKeys) {
-          const value = findByKeys(root, [key]);
-          const normalized = cleanContainerType(value);
-          if (normalized) return normalized;
-        }
-      }
-
-      return "";
-    }
-
-    function cleanContainerType(value) {
-      if (!isUseful(value)) return "";
-
-      let text = String(value).trim();
-
-      if (text.length > 100) return "";
-
-      const upper = text.toUpperCase();
-
-      if ([
-        "CONTAINER", "EQUIPMENT", "TYPE", "SIZE",
-        "UNKNOWN", "GENERAL", "STANDARD"
-      ].includes(upper)) {
-        return "";
-      }
-
-      /*
-       * Recognize common equipment formats, for example:
-       * 20GP, 40HC, 40HQ, 45G1, 22G1, 40' HC.
-       * Other non-generic values are preserved as returned by the API.
-       */
-      const compact = upper.replace(/[\s'"]/g, "");
-
-      if (/^(20|40|45|48|53)(GP|DV|HC|HQ|RF|RH|RE|OT|FR|PW|HC|NOR)$/.test(compact)) {
-        return compact;
-      }
-
-      if (/^(20|40|45|48|53)(G[0-9]|R[0-9]|U[0-9]|P[0-9])$/.test(compact)) {
-        return compact;
-      }
-
-      return text;
-    }
-
-    function parseDate(value) {
-      if (!isUseful(value)) return null;
-
-      if (value instanceof Date && !isNaN(value.getTime())) {
-        return value;
-      }
-
-      if (typeof value === "number" && value > 0) {
-        const numericDate = new Date(value);
-        if (!isNaN(numericDate.getTime())) return numericDate;
-      }
-
-      const text = String(value).trim();
-
-      // DD-MM-YYYY or DD/MM/YYYY, optionally with time.
-      let match = text.match(
-        /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/
-      );
-
-      if (match) {
-        const date = new Date(
-          Number(match[3]),
-          Number(match[2]) - 1,
-          Number(match[1]),
-          Number(match[4] || 0),
-          Number(match[5] || 0),
-          Number(match[6] || 0)
-        );
-
-        if (!isNaN(date.getTime())) return date;
-      }
-
-      // ISO dates and timestamps.
-      match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
-
-      if (match) {
-        const date = new Date(
-          Number(match[1]),
-          Number(match[2]) - 1,
-          Number(match[3])
-        );
-
-        if (!isNaN(date.getTime())) return date;
-      }
-
-      const parsed = new Date(text);
-      return isNaN(parsed.getTime()) ? null : parsed;
-    }
-
-    function formatDate(value) {
-      if (!isUseful(value)) return "";
-
-      const date = parseDate(value);
-      if (!date) return String(value);
-
-      return date.toLocaleDateString(undefined, {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
+  (route.transshipmentPorts || []).forEach(function(port) {
+    if (port.arrival && port.arrival.date) {
+      milestones.push({
+        date: port.arrival.date,
+        title: "Transshipment Arrival",
+        location: port.location && port.location.name
       });
     }
 
-    function dateOnly(date) {
-      return new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate()
-      );
-    }
-
-    function calculateTransitDays(etdValue, etaValue) {
-      const etd = parseDate(etdValue);
-      const eta = parseDate(etaValue);
-
-      if (!etd || !eta) return "";
-
-      const difference = Math.round(
-        (dateOnly(eta).getTime() - dateOnly(etd).getTime()) /
-        86400000
-      );
-
-      if (difference < 0) return "";
-      return difference + (difference === 1 ? " day" : " days");
-    }
-
-    function getDateByRole(root, role) {
-      const directPaths = role === "etd"
-        ? [
-            "departure.date",
-            "departure.estimatedDate",
-            "pol.departureDate",
-            "pol.etd",
-            "pol.ETD",
-            "etd",
-            "ETD",
-            "estimatedDeparture",
-            "estimatedDepartureDate",
-            "departureDate",
-            "vessel.etd",
-            "schedule.etd",
-            "dates.etd"
-          ]
-        : [
-            "arrival.date",
-            "arrival.estimatedDate",
-            "pod.arrivalDate",
-            "pod.eta",
-            "pod.ETA",
-            "eta",
-            "ETA",
-            "estimatedArrival",
-            "estimatedArrivalDate",
-            "arrivalDate",
-            "vessel.eta",
-            "schedule.eta",
-            "dates.eta"
-          ];
-
-      const direct = firstPath(root, directPaths);
-      if (isUseful(direct)) return direct;
-
-      const keys = role === "etd"
-        ? [
-            "etd",
-            "estimatedDeparture",
-            "estimatedDepartureDate",
-            "departureDate",
-            "plannedDepartureDate",
-            "actualDepartureDate",
-            "polDepartureDate"
-          ]
-        : [
-            "eta",
-            "estimatedArrival",
-            "estimatedArrivalDate",
-            "arrivalDate",
-            "plannedArrivalDate",
-            "actualArrivalDate",
-            "podArrivalDate"
-          ];
-
-      return findByKeys(root, keys);
-    }
-
-    function getPort(root, role) {
-      const isOrigin = role === "pol";
-
-      const codeKeys = isOrigin
-        ? ["polCode", "portOfLoadingCode", "originPortCode", "loadingPortCode"]
-        : ["podCode", "portOfDischargeCode", "destinationPortCode", "dischargePortCode"];
-
-      const nameKeys = isOrigin
-        ? ["polName", "portOfLoadingName", "originPortName", "loadingPortName"]
-        : ["podName", "portOfDischargeName", "destinationPortName", "dischargePortName"];
-
-      let code = firstPath(root, isOrigin
-        ? ["pol.code", "POL.code", "origin.code", "portOfLoading.code", "ports.pol.code"]
-        : ["pod.code", "POD.code", "destination.code", "portOfDischarge.code", "ports.pod.code"]);
-
-      let name = firstPath(root, isOrigin
-        ? ["pol.name", "POL.name", "origin.name", "portOfLoading.name", "ports.pol.name"]
-        : ["pod.name", "POD.name", "destination.name", "portOfDischarge.name", "ports.pod.name"]);
-
-      code = firstValue(code, findByKeys(root, codeKeys));
-      name = firstValue(name, findByKeys(root, nameKeys));
-
-      return { code, name };
-    }
-
-    function getHistory(root) {
-      const directPaths = [
-        "movementHistory",
-        "trackingHistory",
-        "history",
-        "events",
-        "movements",
-        "milestones",
-        "data.movementHistory",
-        "data.trackingHistory",
-        "data.history",
-        "data.events",
-        "data.movements",
-        "data.milestones"
-      ];
-
-      for (const path of directPaths) {
-        const value = getPath(root, path);
-        if (Array.isArray(value) && value.length) return value;
-      }
-
-      let found = [];
-
-      walkObjects(root, function (key, value) {
-        if (found.length) return;
-        const k = normalizeKey(key);
-
-        if (
-          Array.isArray(value) &&
-          /(movementhistory|trackinghistory|milestones|events|movements|history)$/.test(k) &&
-          value.length
-        ) {
-          found = value;
-        }
-      });
-
-      return found;
-    }
-
-    function renderHistory(root) {
-      const container = $("rHistory");
-      container.replaceChildren();
-
-      const history = getHistory(root);
-
-      if (!history.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = "The API did not return movement history for this shipment.";
-        container.appendChild(empty);
-        return;
-      }
-
-      const sorted = history.slice();
-
-      sorted.sort(function (a, b) {
-        const dateA = parseDate(firstValue(
-          a.date, a.eventDate, a.timestamp, a.time, a.datetime, a.createdAt
-        ));
-        const dateB = parseDate(firstValue(
-          b.date, b.eventDate, b.timestamp, b.time, b.datetime, b.createdAt
-        ));
-
-        if (!dateA || !dateB) return 0;
-        return dateB.getTime() - dateA.getTime();
-      });
-
-      sorted.forEach(function (item) {
-        if (!item || typeof item !== "object") return;
-
-        const title = firstValue(
-          item.description,
-          item.eventDescription,
-          item.statusDescription,
-          item.movement,
-          item.event,
-          item.status,
-          item.activity,
-          item.name,
-          item.type
-        );
-
-        const date = firstValue(
-          item.date,
-          item.eventDate,
-          item.timestamp,
-          item.datetime,
-          item.time,
-          item.createdAt
-        );
-
-        const location = firstValue(
-          item.location,
-          item.locationName,
-          item.portName,
-          item.facility,
-          item.terminal,
-          item.city,
-          item.place
-        );
-
-        const event = document.createElement("div");
-        event.className = "event";
-
-        const titleEl = document.createElement("div");
-        titleEl.className = "event-title";
-        titleEl.textContent = title || "Shipment event";
-
-        const dateEl = document.createElement("div");
-        dateEl.className = "event-date";
-        dateEl.textContent = formatDate(date) || "Date not provided";
-
-        event.appendChild(titleEl);
-        event.appendChild(dateEl);
-
-        if (location) {
-          const locationEl = document.createElement("div");
-          locationEl.className = "event-location";
-          locationEl.textContent = String(location);
-          event.appendChild(locationEl);
-        }
-
-        container.appendChild(event);
-      });
-
-      if (!container.children.length) {
-        container.textContent = "No readable movement events were returned by the API.";
-      }
-    }
-
-    function getLocation(shipment, payload) {
-      return firstValue(
-        firstPath(shipment, [
-          "lastKnownLocation.name",
-          "lastKnownLocation",
-          "currentLocation.name",
-          "currentLocation",
-          "location.name",
-          "location",
-          "lastEvent.location",
-          "lastMovement.location"
-        ]),
-        findByKeys(shipment, [
-          "lastKnownLocation",
-          "currentLocation",
-          "locationName",
-          "lastLocation",
-          "currentPort"
-        ]),
-        findByKeys(payload, [
-          "lastKnownLocation",
-          "currentLocation",
-          "locationName",
-          "lastLocation",
-          "currentPort"
-        ])
-      );
-    }
-
-    function renderShipment(payload, requestedReference) {
-      const shipment = extractShipment(payload);
-
-      const reference = firstValue(
-        findByKeys(shipment, [
-          "referenceNumber",
-          "containerNumber",
-          "containerNo",
-          "container",
-          "trackingNumber",
-          "trackingReference",
-          "number"
-        ]),
-        requestedReference
-      );
-
-      const shippingLine = firstValue(
-        findByKeys(shipment, [
-          "shippingLine",
-          "shippingLineName",
-          "carrierName",
-          "carrier",
-          "shippingCompany",
-          "lineName"
-        ])
-      );
-
-      const vessel = firstValue(
-        findByKeys(shipment, [
-          "vesselName",
-          "vessel",
-          "shipName",
-          "currentVessel"
-        ])
-      );
-
-      const voyage = firstValue(
-        findByKeys(shipment, [
-          "voyageNumber",
-          "voyageNo",
-          "voyage",
-          "voyageCode"
-        ])
-      );
-
-      const etd = getDateByRole(shipment, "etd");
-      const eta = getDateByRole(shipment, "eta");
-
-      const containerType = getContainerType(shipment, payload);
-
-      const lastUpdate = firstValue(
-        findByKeys(shipment, [
-          "lastUpdated",
-          "lastUpdate",
-          "updatedAt",
-          "lastUpdatedAt",
-          "trackingDate",
-          "dataTimestamp"
-        ])
-      );
-
-      const status = firstValue(
-        findByKeys(shipment, [
-          "statusDescription",
-          "shipmentStatus",
-          "containerStatus",
-          "trackingStatus",
-          "status",
-          "currentStatus"
-        ]),
-        "Shipment details received"
-      );
-
-      const pol = getPort(shipment, "pol");
-      const pod = getPort(shipment, "pod");
-
-      const location = getLocation(shipment, payload);
-
-      setText("rReference", reference, requestedReference);
-      setText("rContainer", reference, requestedReference);
-      setText("rStatus", status, "Shipment details received");
-      setText("rCurrentStatus", status, "Not available");
-      setText("rShippingLine", shippingLine);
-      setText("rVessel", vessel);
-      setText("rVoyage", voyage);
-
-      setText("rETD", formatDate(etd), "Not available");
-      setText("rETA", formatDate(eta), "Not available");
-      setText("rETDDetails", formatDate(etd), "Not available");
-      setText("rETADetails", formatDate(eta), "Not available");
-
-      setText(
-        "rTransitDays",
-        calculateTransitDays(etd, eta),
-        "ETD / ETA unavailable"
-      );
-
-      setText("rType", containerType, "Not provided by API");
-      setText("rTypeDetails", containerType, "Not provided by API");
-      setText("rLastUpdate", formatDate(lastUpdate) || lastUpdate);
-
-      setText("rLocation", location);
-      setText("rPOL", pol.code || pol.name, "Not available");
-      setText("rPOLName", pol.name, "Not available");
-      setText("rPOD", pod.code || pod.name, "Not available");
-      setText("rPODName", pod.name, "Not available");
-
-      renderHistory(payload);
-
-      $("results").style.display = "block";
-
-      if (!containerType || !parseDate(etd) || !parseDate(eta)) {
-        showMessage("Tracking information loaded successfully.", "success");
-          
-      
-      }
-    }
-
-    function trackContainer() {
-      const reference = $("referenceInput").value.trim();
-
-      if (!reference) {
-        showMessage("Please enter a container number or tracking reference.", "error");
-        $("referenceInput").focus();
-        return;
-      }
-
-      requestNumber++;
-      const thisRequest = requestNumber;
-
-      if (requestTimeout) {
-        clearTimeout(requestTimeout);
-        requestTimeout = null;
-      }
-
-      if (activeScript) {
-        activeScript.remove();
-        activeScript = null;
-      }
-
-      cleanupCallback();
-
-      $("results").style.display = "none";
-      $("trackButton").disabled = true;
-      $("trackButton").textContent = "Tracking...";
-      showMessage("Retrieving shipment information...", "info");
-
-      const callbackName =
-        "trackingCallback_" + Date.now() + "_" + thisRequest;
-
-      let completed = false;
-
-      window[callbackName] = function (response) {
-        if (completed || thisRequest !== requestNumber) return;
-        completed = true;
-
-        clearTimeout(requestTimeout);
-        requestTimeout = null;
-
-        $("trackButton").disabled = false;
-        $("trackButton").textContent = "Track Shipment";
-
-        if (activeScript) {
-          activeScript.remove();
-          activeScript = null;
-        }
-
-        delete window[callbackName];
-
-        try {
-          if (!response || typeof response !== "object") {
-            throw new Error("The API returned an empty or invalid response.");
-          }
-
-          if (
-            response.success === false ||
-            (response.data && response.data.success === false)
-          ) {
-            const apiMessage = firstValue(
-              response.message,
-              response.error,
-              response.data && response.data.message,
-              response.data && response.data.error
-            );
-
-            throw new Error(apiMessage || "Shipment was not found by the API.");
-          }
-
-          const shipment = extractShipment(response);
-
-          if (!shipment || typeof shipment !== "object") {
-            throw new Error("No shipment data was returned by the API.");
-          }
-
-          renderShipment(response, reference);
-        } catch (error) {
-          $("results").style.display = "none";
-          showMessage(
-            error.message || "Unable to process the tracking response.",
-            "error"
-          );
-        }
-      };
-
-      const separator = API_URL.includes("?") ? "&" : "?";
-      const url = API_URL + separator +
-        "action=track" +
-        "&referenceNumber=" + encodeURIComponent(reference) +
-        "&callback=" + encodeURIComponent(callbackName);
-
-      const script = document.createElement("script");
-      script.src = url;
-      script.async = true;
-      script.onerror = function () {
-        if (completed || thisRequest !== requestNumber) return;
-        completed = true;
-
-        clearTimeout(requestTimeout);
-        requestTimeout = null;
-        delete window[callbackName];
-
-        $("trackButton").disabled = false;
-        $("trackButton").textContent = "Track Shipment";
-
-        if (activeScript) {
-          activeScript.remove();
-          activeScript = null;
-        }
-
-        showMessage(
-          "API se connection nahi ho saka. API URL, deployment access aur JSONP response check karein.",
-          "error"
-        );
-      };
-
-      activeScript = script;
-      document.body.appendChild(script);
-
-      requestTimeout = setTimeout(function () {
-        if (completed || thisRequest !== requestNumber) return;
-        completed = true;
-
-        delete window[callbackName];
-
-        if (activeScript) {
-          activeScript.remove();
-          activeScript = null;
-        }
-
-        $("trackButton").disabled = false;
-        $("trackButton").textContent = "Track Shipment";
-
-        showMessage(
-          "Tracking request timed out. Dobara try karein. Agar masla rahe to API response check karna hoga.",
-          "error"
-        );
-      }, 25000);
-    }
-
-    function cleanupCallback() {
-      Object.keys(window).forEach(function (key) {
-        if (/^trackingCallback_/.test(key)) {
-          try {
-            delete window[key];
-          } catch (e) {
-            window[key] = undefined;
-          }
-        }
+    if (port.departure && port.departure.date) {
+      milestones.push({
+        date: port.departure.date,
+        title: "Transshipment Departure",
+        location: port.location && port.location.name
       });
     }
-  </script>
+  });
+
+  if (pod.arrival && pod.arrival.date) {
+    milestones.push({
+      date: pod.arrival.date,
+      title: pod.arrival.isActual === true
+        ? "Arrived at Port of Discharge"
+        : "Estimated Arrival",
+      location: pod.location && pod.location.name
+    });
+  }
+
+  if (delivery.arrival && delivery.arrival.date) {
+    milestones.push({
+      date: delivery.arrival.date,
+      title: "Arrived at Place of Delivery",
+      location: delivery.location && delivery.location.name
+    });
+  }
+
+  milestones.forEach(function(event) {
+    addEvent(event.date, event.title, event.location || "");
+  });
+
+  if (milestones.length === 0) {
+    addEvent(
+      shipment.updatedAt,
+      "Latest Provider Status: " + humanize(shipment.status || "UNKNOWN"),
+      "The provider did not return detailed movement events for this request."
+    );
+
+    historyNote.textContent =
+      "Only the latest reported status is available. No additional movement events were provided.";
+  } else {
+    historyNote.textContent =
+      "Showing route milestones included in the provider response. This may not be the complete movement history.";
+  }
+}
+
+function addEvent(date, title, description) {
+  const timeline = document.getElementById("timeline");
+  const item = document.createElement("div");
+
+  item.className = "event";
+
+  const dateEl = document.createElement("div");
+  dateEl.className = "date";
+  dateEl.textContent = formatDate(date, true);
+
+  const titleEl = document.createElement("h4");
+  titleEl.textContent = title || "Shipment update";
+
+  const descEl = document.createElement("p");
+  descEl.textContent = description || "";
+
+  item.appendChild(dateEl);
+  item.appendChild(titleEl);
+
+  if (description) item.appendChild(descEl);
+
+  timeline.appendChild(item);
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  element.textContent =
+    value === null || value === undefined || value === ""
+      ? "Not available"
+      : String(value);
+}
+
+function formatDate(value, includeTime) {
+  if (!value) return "Not available";
+
+  const date = parseTransitDate(value);
+
+  if (!date) return String(value);
+
+  const options = {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC"
+  };
+
+  if (includeTime) {
+    options.hour = "2-digit";
+    options.minute = "2-digit";
+    options.timeZone = "UTC";
+  }
+
+  return date.toLocaleString("en-GB", options) + " UTC";
+}
+
+function humanize(value) {
+  return String(value || "UNKNOWN")
+    .replace(/[_-]+/g, " ")
+    .toUpperCase();
+}
+
+function showError(message) {
+  const error = document.getElementById("error");
+  error.textContent = message;
+  error.classList.remove("hidden");
+}
+
+function hideError() {
+  document.getElementById("error").classList.add("hidden");
+}
+
+function hideResult() {
+  document.getElementById("result").classList.add("hidden");
+}
+
+document.getElementById("containerNo").addEventListener(
+  "keydown",
+  function(event) {
+    if (event.key === "Enter") trackContainer();
+  }
+);
+</script>
+
 </body>
 </html>
+```
