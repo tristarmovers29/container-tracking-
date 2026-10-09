@@ -82,10 +82,7 @@ body {
   cursor: pointer;
 }
 
-.search button:disabled {
-  opacity: .65;
-  cursor: wait;
-}
+.search button:disabled { opacity: .65; cursor: wait; }
 
 .container {
   max-width: 1200px;
@@ -167,11 +164,7 @@ body {
   margin-top: 8px;
 }
 
-.line {
-  height: 3px;
-  background: #b8c5d2;
-  position: relative;
-}
+.line { height: 3px; background: #b8c5d2; position: relative; }
 
 .dot {
   width: 13px;
@@ -210,19 +203,9 @@ body {
   box-shadow: 0 0 0 1px #b7c9d5;
 }
 
-.event .date {
-  font-size: 12px;
-  color: #6d7c8e;
-  font-weight: 700;
-}
-
+.event .date { font-size: 12px; color: #6d7c8e; font-weight: 700; }
 .event h4 { margin: 5px 0; }
-
-.event p {
-  margin: 0;
-  color: #526274;
-  line-height: 1.5;
-}
+.event p { margin: 0; color: #526274; line-height: 1.5; }
 
 .error {
   color: #a52d2d;
@@ -282,12 +265,10 @@ body {
   </p>
 
   <div class="search">
-    <input
-      id="containerNo"
+    <input id="containerNo"
       placeholder="Enter container number e.g. MEDU9270627"
       autocomplete="off"
       aria-label="Container, booking or bill of lading number">
-
     <button id="trackButton" type="button" onclick="trackContainer()">
       TRACK CONTAINER
     </button>
@@ -327,7 +308,6 @@ body {
       <h3>Shipment Overview</h3>
 
       <div class="grid">
-
         <div class="stat">
           <div class="label">Shipping Line</div>
           <div class="value" id="rLine">Not available</div>
@@ -358,7 +338,6 @@ body {
           <div class="value" id="rETA">Not available</div>
         </div>
 
-        <!-- NEW: Transit Days -->
         <div class="stat">
           <div class="label">Transit Days</div>
           <div class="value" id="rTransitDays">Not available</div>
@@ -373,7 +352,6 @@ body {
           <div class="label">Container Type / Size</div>
           <div class="value" id="rType">Not provided by API</div>
         </div>
-
       </div>
 
       <div class="route">
@@ -405,10 +383,7 @@ body {
     <div class="card">
       <div class="label">Tracking Reference</div>
       <div id="rReference" class="value"></div>
-
-      <div class="label" style="margin-top:12px">
-        Data Last Updated By Provider
-      </div>
+      <div class="label" style="margin-top:12px">Data Last Updated By Provider</div>
       <div id="rCache" class="value">Not available</div>
     </div>
 
@@ -456,7 +431,6 @@ function trackContainer() {
 
   const timeoutId = setTimeout(function() {
     finish();
-
     if (currentRequest === requestNumber) {
       showError("The tracking request timed out. Please try again.");
     }
@@ -504,7 +478,6 @@ function trackContainer() {
 
   script.onerror = function() {
     finish();
-
     if (currentRequest === requestNumber) {
       showError(
         "Unable to connect to the tracking service. Check the deployment and try again."
@@ -522,7 +495,6 @@ function trackContainer() {
   document.body.appendChild(script);
 }
 
-/* Read the first non-empty supported API field. */
 function firstValue() {
   for (let i = 0; i < arguments.length; i++) {
     const value = arguments[i];
@@ -537,30 +509,86 @@ function firstValue() {
   return "";
 }
 
-/* Calculate calendar days between ETD and ETA. */
-function calculateTransitDays(etdValue, etaValue) {
-  if (!etdValue || !etaValue) return "Not available";
-
-  const etd = new Date(etdValue);
-  const eta = new Date(etaValue);
-
-  if (isNaN(etd.getTime()) || isNaN(eta.getTime())) {
-    return "Not available";
+/*
+ * Parse date strings carefully.
+ * Supports ISO dates, timestamps, DD-MM-YYYY and DD/MM/YYYY.
+ */
+function parseTransitDate(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
   }
 
-  const etdDay = Date.UTC(
+  if (typeof value === "object") {
+    if (value.date) return parseTransitDate(value.date);
+    return null;
+  }
+
+  const text = String(value).trim();
+
+  // DD-MM-YYYY or DD/MM/YYYY
+  let match = text.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+
+  if (match) {
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      return null;
+    }
+
+    return date;
+  }
+
+  // YYYY-MM-DD and ISO timestamps
+  match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+  if (match) {
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      return null;
+    }
+
+    return date;
+  }
+
+  const parsed = new Date(text);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function calculateTransitDays(etdValue, etaValue) {
+  const etd = parseTransitDate(etdValue);
+  const eta = parseTransitDate(etaValue);
+
+  if (!etd || !eta) return "ETD / ETA unavailable";
+
+  const start = Date.UTC(
     etd.getUTCFullYear(),
     etd.getUTCMonth(),
     etd.getUTCDate()
   );
 
-  const etaDay = Date.UTC(
+  const end = Date.UTC(
     eta.getUTCFullYear(),
     eta.getUTCMonth(),
     eta.getUTCDate()
   );
 
-  const days = Math.round((etaDay - etdDay) / 86400000);
+  const days = Math.round((end - start) / 86400000);
 
   if (days < 0) return "Check ETD / ETA";
 
@@ -595,6 +623,32 @@ function renderShipment(shipment, searchedNumber) {
   const container = s.container || {};
   const details = s.details || {};
 
+  /*
+   * Look for ETD/ETA in several possible provider fields.
+   * Exact fields depend on the tracking API response.
+   */
+  const etdValue = firstValue(
+    departure.date,
+    pol.departureDate,
+    pol.etd,
+    pol.ETD,
+    s.etd,
+    s.ETD,
+    s.estimatedDeparture,
+    s.departureDate
+  );
+
+  const etaValue = firstValue(
+    arrival.date,
+    pod.arrivalDate,
+    pod.eta,
+    pod.ETA,
+    s.eta,
+    s.ETA,
+    s.estimatedArrival,
+    s.arrivalDate
+  );
+
   const containerNumber = firstValue(
     refs.containerNumber,
     s.containerNumber,
@@ -617,21 +671,17 @@ function renderShipment(shipment, searchedNumber) {
     ) || "Location not provided"
   );
 
-  setText("rETD", formatDate(departure.date));
-  setText("rETA", formatDate(arrival.date));
+  setText("rETD", formatDate(etdValue));
+  setText("rETA", formatDate(etaValue));
 
-  // NEW: display transit days based on ETD and ETA
+  // Transit Days: calendar-day difference between ETD and ETA.
   setText(
     "rTransitDays",
-    calculateTransitDays(departure.date, arrival.date)
+    calculateTransitDays(etdValue, etaValue)
   );
 
   setText("rUpdated", formatDate(s.updatedAt, true));
 
-  /*
-   * Container type may appear under different provider fields.
-   * shipment.type is not used because it may only say "CONTAINER".
-   */
   const containerType = firstValue(
     equipment.type,
     equipment.containerType,
@@ -672,17 +722,17 @@ function renderShipment(shipment, searchedNumber) {
 
   const routeDates = [];
 
-  if (departure.date) {
+  if (etdValue) {
     routeDates.push(
-      "Departure: " + formatDate(departure.date) +
+      "Departure: " + formatDate(etdValue) +
       (departure.isActual === true ? " (Actual)" :
        departure.isActual === false ? " (Estimated)" : "")
     );
   }
 
-  if (arrival.date) {
+  if (etaValue) {
     routeDates.push(
-      "Arrival: " + formatDate(arrival.date) +
+      "Arrival: " + formatDate(etaValue) +
       (arrival.isActual === true ? " (Actual)" :
        arrival.isActual === false ? " (Estimated)" : "")
     );
@@ -728,10 +778,7 @@ function renderHistory(shipment, route) {
   let events = [];
 
   for (let i = 0; i < possibleEvents.length; i++) {
-    if (
-      Array.isArray(possibleEvents[i]) &&
-      possibleEvents[i].length > 0
-    ) {
+    if (Array.isArray(possibleEvents[i]) && possibleEvents[i].length > 0) {
       events = possibleEvents[i];
       break;
     }
@@ -875,9 +922,9 @@ function setText(id, value) {
 function formatDate(value, includeTime) {
   if (!value) return "Not available";
 
-  const date = new Date(value);
+  const date = parseTransitDate(value);
 
-  if (isNaN(date.getTime())) return String(value);
+  if (!date) return String(value);
 
   const options = {
     day: "2-digit",
@@ -918,9 +965,7 @@ function hideResult() {
 document.getElementById("containerNo").addEventListener(
   "keydown",
   function(event) {
-    if (event.key === "Enter") {
-      trackContainer();
-    }
+    if (event.key === "Enter") trackContainer();
   }
 );
 </script>
