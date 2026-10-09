@@ -1206,12 +1206,9 @@
       $("results").style.display = "block";
 
       if (!containerType || !parseDate(etd) || !parseDate(eta)) {
-        showMessage(
-          "Tracking response received. Agar Container Type/Size ya Transit Days ab bhi unavailable hain, to API response mein woh fields maujood nahi ho sakti hain.",
-          "info"
-        );
-      } else {
-        showMessage("Shipment information loaded successfully.", "success");
+        showMessage("Tracking information loaded successfully.", "success");
+          
+      
       }
     }
 
