@@ -27,10 +27,7 @@ body {
   flex-wrap: wrap;
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: 800;
-}
+.logo { font-size: 22px; font-weight: 800; }
 
 .badge {
   font-size: 12px;
@@ -45,10 +42,7 @@ body {
   padding: 55px 6% 70px;
 }
 
-.hero h1 {
-  font-size: 42px;
-  margin: 0 0 12px;
-}
+.hero h1 { font-size: 42px; margin: 0 0 12px; }
 
 .hero p {
   font-size: 17px;
@@ -88,10 +82,7 @@ body {
   cursor: pointer;
 }
 
-.search button:disabled {
-  opacity: .65;
-  cursor: wait;
-}
+.search button:disabled { opacity: .65; cursor: wait; }
 
 .container {
   max-width: 1200px;
@@ -136,6 +127,7 @@ body {
   font-weight: 700;
   margin-top: 7px;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .status {
@@ -172,11 +164,7 @@ body {
   margin-top: 8px;
 }
 
-.line {
-  height: 3px;
-  background: #b8c5d2;
-  position: relative;
-}
+.line { height: 3px; background: #b8c5d2; position: relative; }
 
 .dot {
   width: 13px;
@@ -215,12 +203,7 @@ body {
   box-shadow: 0 0 0 1px #b7c9d5;
 }
 
-.event .date {
-  font-size: 12px;
-  color: #6d7c8e;
-  font-weight: 700;
-}
-
+.event .date { font-size: 12px; color: #6d7c8e; font-weight: 700; }
 .event h4 { margin: 5px 0; }
 .event p { margin: 0; color: #526274; line-height: 1.5; }
 
@@ -282,12 +265,10 @@ body {
   </p>
 
   <div class="search">
-    <input
-      id="containerNo"
+    <input id="containerNo"
       placeholder="Enter container number e.g. MEDU9270627"
       autocomplete="off"
-      aria-label="Container, booking or bill of lading number"
-    >
+      aria-label="Container, booking or bill of lading number">
     <button id="trackButton" type="button" onclick="trackContainer()">
       TRACK CONTAINER
     </button>
@@ -302,9 +283,7 @@ body {
       Search using a container number, booking reference or bill of lading
       reference supported by the tracking provider.
     </p>
-    <p>
-      <b>Test reference:</b> MEDU9270627
-    </p>
+    <p><b>Test reference:</b> MEDU9270627</p>
   </div>
 
   <div id="loading" class="info hidden">
@@ -333,40 +312,33 @@ body {
           <div class="label">Shipping Line</div>
           <div class="value" id="rLine">Not available</div>
         </div>
-
         <div class="stat">
           <div class="label">Vessel</div>
           <div class="value" id="rVessel">Not available</div>
         </div>
-
         <div class="stat">
           <div class="label">Voyage</div>
           <div class="value" id="rVoyage">Not available</div>
         </div>
-
         <div class="stat">
           <div class="label">Last Known Location</div>
           <div class="value" id="rLocation">Not available</div>
         </div>
-
         <div class="stat">
           <div class="label">Departure / ETD</div>
           <div class="value" id="rETD">Not available</div>
         </div>
-
         <div class="stat">
           <div class="label">Arrival / ETA</div>
           <div class="value" id="rETA">Not available</div>
         </div>
-
         <div class="stat">
           <div class="label">Last Update</div>
           <div class="value" id="rUpdated">Not available</div>
         </div>
-
         <div class="stat">
-          <div class="label">Container Type</div>
-          <div class="value" id="rType">Not available</div>
+          <div class="label">Container Type / Size</div>
+          <div class="value" id="rType">Not provided by API</div>
         </div>
       </div>
 
@@ -375,12 +347,10 @@ body {
           <div class="label">Port of Loading</div>
           <strong id="rPOL">Not available</strong>
         </div>
-
         <div class="line">
           <span class="dot left"></span>
           <span class="dot right"></span>
         </div>
-
         <div class="routeBox">
           <div class="label">Port of Discharge</div>
           <strong id="rPOD">Not available</strong>
@@ -413,10 +383,6 @@ body {
 <script>
 "use strict";
 
-/*
- * Google Apps Script backend.
- * Keep the Tracking One API key in Script Properties only.
- */
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzNyAKEbexR9_NGYCrUrG0K7aVgPbDarDMFHFK0fiIo8dnrjrxGyOaD2no-EMsKCYA/exec";
 
@@ -443,23 +409,16 @@ function trackContainer() {
   document.getElementById("loading").classList.remove("hidden");
   document.getElementById("welcome").classList.add("hidden");
 
-  /*
-   * JSONP avoids browser CORS restrictions when the page is hosted
-   * separately on GitHub Pages.
-   */
-  const callbackName = "trackingCallback_" +
-    Date.now() + "_" + currentRequest;
+  const callbackName =
+    "trackingCallback_" + Date.now() + "_" + currentRequest;
 
   const script = document.createElement("script");
   let finished = false;
 
   const timeoutId = setTimeout(function() {
     finish();
-
     if (currentRequest === requestNumber) {
-      showError(
-        "The tracking request timed out. Please try again."
-      );
+      showError("The tracking request timed out. Please try again.");
     }
   }, 45000);
 
@@ -482,11 +441,9 @@ function trackContainer() {
     if (currentRequest !== requestNumber) return;
 
     if (!response || response.success !== true) {
-      const details = response &&
-        (response.error || response.message);
-
       showError(
-        details || "Tracking failed. Please check the reference and retry."
+        response && (response.error || response.message) ||
+        "Tracking failed. Please check the reference and retry."
       );
       return;
     }
@@ -507,7 +464,6 @@ function trackContainer() {
 
   script.onerror = function() {
     finish();
-
     if (currentRequest === requestNumber) {
       showError(
         "Unable to connect to the tracking service. Check the deployment and try again."
@@ -523,6 +479,20 @@ function trackContainer() {
     "&callback=" + encodeURIComponent(callbackName);
 
   document.body.appendChild(script);
+}
+
+/* Read the first non-empty value from supported API fields. */
+function firstValue() {
+  for (let i = 0; i < arguments.length; i++) {
+    const value = arguments[i];
+
+    if (value !== null && value !== undefined && value !== "") {
+      if (typeof value === "string" && value.trim() === "") continue;
+      if (typeof value === "object") continue;
+      return value;
+    }
+  }
+  return "";
 }
 
 function renderShipment(shipment, searchedNumber) {
@@ -547,45 +517,72 @@ function renderShipment(shipment, searchedNumber) {
     ? arrivalTransport
     : departureTransport;
 
-  const references = s.references || {};
+  const refs = s.references || {};
   const carrier = s.carrier || {};
+  const equipment = s.equipment || {};
+  const container = s.container || {};
+  const details = s.details || {};
 
   const containerNumber =
-    references.containerNumber || searchedNumber;
+    firstValue(refs.containerNumber, s.containerNumber, searchedNumber);
 
   setText("rContainer", containerNumber);
   setText("rStatus", humanize(s.status || "UNKNOWN"));
-  setText("rLine", carrier.name || carrier.code || "Not available");
-  setText("rVessel", transport.name || "Not available");
-  setText("rVoyage", transport.voyageNumber || "Not available");
+  setText("rLine", firstValue(carrier.name, carrier.code));
+  setText("rVessel", transport.name);
+  setText("rVoyage", transport.voyageNumber);
 
-  /*
-   * A tracking response does not always include the vessel's current
-   * position. Show a known route location rather than inventing one.
-   */
   setText(
     "rLocation",
-    destinationLocation.name ||
-    originLocation.name ||
-    "Location not provided"
+    firstValue(
+      s.lastKnownLocation && s.lastKnownLocation.name,
+      typeof s.lastKnownLocation === "string" ? s.lastKnownLocation : "",
+      destinationLocation.name,
+      originLocation.name
+    ) || "Location not provided"
   );
 
   setText("rETD", formatDate(departure.date));
   setText("rETA", formatDate(arrival.date));
-
   setText("rUpdated", formatDate(s.updatedAt, true));
 
-  const equipment = s.equipment || {};
-  setText(
-    "rType",
-    equipment.type ||
-    s.containerType ||
-    s.equipmentType ||
-    "Not provided by API"
+  /*
+   * Container type can appear under different keys depending on
+   * the provider's response schema. Do not treat shipment.type
+   * (for example, "CONTAINER") as the physical container size.
+   */
+  const containerType = firstValue(
+    equipment.type,
+    equipment.containerType,
+    equipment.equipmentType,
+    equipment.isoCode,
+    equipment.sizeType,
+    equipment.size,
+    equipment.description,
+    container.type,
+    container.containerType,
+    container.equipmentType,
+    container.isoCode,
+    container.sizeType,
+    container.size,
+    s.containerType,
+    s.equipmentType,
+    s.container_type,
+    s.equipment_type,
+    s.isoCode,
+    s.sizeType,
+    s.containerSize,
+    s.container_size,
+    details.containerType,
+    details.equipmentType,
+    details.containerSize,
+    refs.containerType
   );
 
-  setText("rPOL", originLocation.name || "Not available");
-  setText("rPOD", destinationLocation.name || "Not available");
+  setText("rType", containerType || "Not provided by API");
+
+  setText("rPOL", originLocation.name);
+  setText("rPOD", destinationLocation.name);
 
   const routeDates = [];
 
@@ -609,10 +606,13 @@ function renderShipment(shipment, searchedNumber) {
 
   setText(
     "rReference",
-    references.blNumber ||
-    references.bookingNumber ||
-    references.containerNumber ||
-    searchedNumber
+    firstValue(
+      refs.blNumber,
+      refs.bookingNumber,
+      refs.containerNumber,
+      s.referenceNumber,
+      searchedNumber
+    )
   );
 
   setText("rCache", formatDate(s.cacheExpiresAt, true));
@@ -642,8 +642,7 @@ function renderHistory(shipment, route) {
   let events = [];
 
   for (let i = 0; i < possibleEvents.length; i++) {
-    if (Array.isArray(possibleEvents[i]) &&
-        possibleEvents[i].length > 0) {
+    if (Array.isArray(possibleEvents[i]) && possibleEvents[i].length > 0) {
       events = possibleEvents[i];
       break;
     }
@@ -659,29 +658,17 @@ function renderHistory(shipment, route) {
           : "";
 
       addEvent(
-        event.date ||
-        event.eventDate ||
-        event.timestamp ||
-        event.datetime,
-        event.description ||
-        event.eventDescription ||
-        event.eventType ||
-        event.status ||
-        event.type ||
-        "Shipment update",
+        event.date || event.eventDate || event.timestamp || event.datetime,
+        event.description || event.eventDescription ||
+          event.eventType || event.status || event.type ||
+          "Shipment update",
         locationName
       );
     });
-
     return;
   }
 
-  /*
-   * If the provider response has no detailed event list,
-   * show only route milestones actually present in the response.
-   */
   const milestones = [];
-
   const pol = route.portOfLoading || {};
   const pod = route.portOfDischarge || {};
   const receipt = route.placeOfReceipt || {};
@@ -778,9 +765,7 @@ function addEvent(date, title, description) {
   item.appendChild(dateEl);
   item.appendChild(titleEl);
 
-  if (description) {
-    item.appendChild(descEl);
-  }
+  if (description) item.appendChild(descEl);
 
   timeline.appendChild(item);
 }
@@ -799,10 +784,7 @@ function formatDate(value, includeTime) {
   if (!value) return "Not available";
 
   const date = new Date(value);
-
-  if (isNaN(date.getTime())) {
-    return String(value);
-  }
+  if (isNaN(date.getTime())) return String(value);
 
   const options = {
     day: "2-digit",
@@ -843,9 +825,7 @@ function hideResult() {
 document.getElementById("containerNo").addEventListener(
   "keydown",
   function(event) {
-    if (event.key === "Enter") {
-      trackContainer();
-    }
+    if (event.key === "Enter") trackContainer();
   }
 );
 </script>
