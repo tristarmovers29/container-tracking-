@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,7 +82,10 @@ body {
   cursor: pointer;
 }
 
-.search button:disabled { opacity: .65; cursor: wait; }
+.search button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
 
 .container {
   max-width: 1200px;
@@ -164,7 +167,11 @@ body {
   margin-top: 8px;
 }
 
-.line { height: 3px; background: #b8c5d2; position: relative; }
+.line {
+  height: 3px;
+  background: #b8c5d2;
+  position: relative;
+}
 
 .dot {
   width: 13px;
@@ -203,9 +210,19 @@ body {
   box-shadow: 0 0 0 1px #b7c9d5;
 }
 
-.event .date { font-size: 12px; color: #6d7c8e; font-weight: 700; }
+.event .date {
+  font-size: 12px;
+  color: #6d7c8e;
+  font-weight: 700;
+}
+
 .event h4 { margin: 5px 0; }
-.event p { margin: 0; color: #526274; line-height: 1.5; }
+
+.event p {
+  margin: 0;
+  color: #526274;
+  line-height: 1.5;
+}
 
 .error {
   color: #a52d2d;
@@ -265,10 +282,12 @@ body {
   </p>
 
   <div class="search">
-    <input id="containerNo"
+    <input
+      id="containerNo"
       placeholder="Enter container number e.g. MEDU9270627"
       autocomplete="off"
       aria-label="Container, booking or bill of lading number">
+
     <button id="trackButton" type="button" onclick="trackContainer()">
       TRACK CONTAINER
     </button>
@@ -308,38 +327,53 @@ body {
       <h3>Shipment Overview</h3>
 
       <div class="grid">
+
         <div class="stat">
           <div class="label">Shipping Line</div>
           <div class="value" id="rLine">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Vessel</div>
           <div class="value" id="rVessel">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Voyage</div>
           <div class="value" id="rVoyage">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Last Known Location</div>
           <div class="value" id="rLocation">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Departure / ETD</div>
           <div class="value" id="rETD">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Arrival / ETA</div>
           <div class="value" id="rETA">Not available</div>
         </div>
+
+        <!-- NEW: Transit Days -->
+        <div class="stat">
+          <div class="label">Transit Days</div>
+          <div class="value" id="rTransitDays">Not available</div>
+        </div>
+
         <div class="stat">
           <div class="label">Last Update</div>
           <div class="value" id="rUpdated">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Container Type / Size</div>
           <div class="value" id="rType">Not provided by API</div>
         </div>
+
       </div>
 
       <div class="route">
@@ -347,10 +381,12 @@ body {
           <div class="label">Port of Loading</div>
           <strong id="rPOL">Not available</strong>
         </div>
+
         <div class="line">
           <span class="dot left"></span>
           <span class="dot right"></span>
         </div>
+
         <div class="routeBox">
           <div class="label">Port of Discharge</div>
           <strong id="rPOD">Not available</strong>
@@ -369,7 +405,10 @@ body {
     <div class="card">
       <div class="label">Tracking Reference</div>
       <div id="rReference" class="value"></div>
-      <div class="label" style="margin-top:12px">Data Last Updated By Provider</div>
+
+      <div class="label" style="margin-top:12px">
+        Data Last Updated By Provider
+      </div>
       <div id="rCache" class="value">Not available</div>
     </div>
 
@@ -417,6 +456,7 @@ function trackContainer() {
 
   const timeoutId = setTimeout(function() {
     finish();
+
     if (currentRequest === requestNumber) {
       showError("The tracking request timed out. Please try again.");
     }
@@ -464,6 +504,7 @@ function trackContainer() {
 
   script.onerror = function() {
     finish();
+
     if (currentRequest === requestNumber) {
       showError(
         "Unable to connect to the tracking service. Check the deployment and try again."
@@ -481,7 +522,7 @@ function trackContainer() {
   document.body.appendChild(script);
 }
 
-/* Read the first non-empty value from supported API fields. */
+/* Read the first non-empty supported API field. */
 function firstValue() {
   for (let i = 0; i < arguments.length; i++) {
     const value = arguments[i];
@@ -492,7 +533,38 @@ function firstValue() {
       return value;
     }
   }
+
   return "";
+}
+
+/* Calculate calendar days between ETD and ETA. */
+function calculateTransitDays(etdValue, etaValue) {
+  if (!etdValue || !etaValue) return "Not available";
+
+  const etd = new Date(etdValue);
+  const eta = new Date(etaValue);
+
+  if (isNaN(etd.getTime()) || isNaN(eta.getTime())) {
+    return "Not available";
+  }
+
+  const etdDay = Date.UTC(
+    etd.getUTCFullYear(),
+    etd.getUTCMonth(),
+    etd.getUTCDate()
+  );
+
+  const etaDay = Date.UTC(
+    eta.getUTCFullYear(),
+    eta.getUTCMonth(),
+    eta.getUTCDate()
+  );
+
+  const days = Math.round((etaDay - etdDay) / 86400000);
+
+  if (days < 0) return "Check ETD / ETA";
+
+  return days + (days === 1 ? " day" : " days");
 }
 
 function renderShipment(shipment, searchedNumber) {
@@ -523,8 +595,11 @@ function renderShipment(shipment, searchedNumber) {
   const container = s.container || {};
   const details = s.details || {};
 
-  const containerNumber =
-    firstValue(refs.containerNumber, s.containerNumber, searchedNumber);
+  const containerNumber = firstValue(
+    refs.containerNumber,
+    s.containerNumber,
+    searchedNumber
+  );
 
   setText("rContainer", containerNumber);
   setText("rStatus", humanize(s.status || "UNKNOWN"));
@@ -544,12 +619,18 @@ function renderShipment(shipment, searchedNumber) {
 
   setText("rETD", formatDate(departure.date));
   setText("rETA", formatDate(arrival.date));
+
+  // NEW: display transit days based on ETD and ETA
+  setText(
+    "rTransitDays",
+    calculateTransitDays(departure.date, arrival.date)
+  );
+
   setText("rUpdated", formatDate(s.updatedAt, true));
 
   /*
-   * Container type can appear under different keys depending on
-   * the provider's response schema. Do not treat shipment.type
-   * (for example, "CONTAINER") as the physical container size.
+   * Container type may appear under different provider fields.
+   * shipment.type is not used because it may only say "CONTAINER".
    */
   const containerType = firstValue(
     equipment.type,
@@ -559,12 +640,15 @@ function renderShipment(shipment, searchedNumber) {
     equipment.sizeType,
     equipment.size,
     equipment.description,
+
     container.type,
     container.containerType,
     container.equipmentType,
     container.isoCode,
     container.sizeType,
     container.size,
+    container.description,
+
     s.containerType,
     s.equipmentType,
     s.container_type,
@@ -573,9 +657,11 @@ function renderShipment(shipment, searchedNumber) {
     s.sizeType,
     s.containerSize,
     s.container_size,
+
     details.containerType,
     details.equipmentType,
     details.containerSize,
+
     refs.containerType
   );
 
@@ -642,7 +728,10 @@ function renderHistory(shipment, route) {
   let events = [];
 
   for (let i = 0; i < possibleEvents.length; i++) {
-    if (Array.isArray(possibleEvents[i]) && possibleEvents[i].length > 0) {
+    if (
+      Array.isArray(possibleEvents[i]) &&
+      possibleEvents[i].length > 0
+    ) {
       events = possibleEvents[i];
       break;
     }
@@ -651,6 +740,7 @@ function renderHistory(shipment, route) {
   if (events.length > 0) {
     events.forEach(function(event) {
       const location = event.location;
+
       const locationName = typeof location === "string"
         ? location
         : location && location.name
@@ -665,6 +755,7 @@ function renderHistory(shipment, route) {
         locationName
       );
     });
+
     return;
   }
 
@@ -750,6 +841,7 @@ function renderHistory(shipment, route) {
 function addEvent(date, title, description) {
   const timeline = document.getElementById("timeline");
   const item = document.createElement("div");
+
   item.className = "event";
 
   const dateEl = document.createElement("div");
@@ -784,6 +876,7 @@ function formatDate(value, includeTime) {
   if (!value) return "Not available";
 
   const date = new Date(value);
+
   if (isNaN(date.getTime())) return String(value);
 
   const options = {
@@ -825,10 +918,13 @@ function hideResult() {
 document.getElementById("containerNo").addEventListener(
   "keydown",
   function(event) {
-    if (event.key === "Enter") trackContainer();
+    if (event.key === "Enter") {
+      trackContainer();
+    }
   }
 );
 </script>
 
 </body>
 </html>
+```
