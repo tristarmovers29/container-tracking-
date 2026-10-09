@@ -682,40 +682,82 @@ function renderShipment(shipment, searchedNumber) {
 
   setText("rUpdated", formatDate(s.updatedAt, true));
 
-  const containerType = firstValue(
-    equipment.type,
-    equipment.containerType,
-    equipment.equipmentType,
-    equipment.isoCode,
-    equipment.sizeType,
-    equipment.size,
-    equipment.description,
+     
+function findContainerSize(obj, depth = 0) {
+  if (!obj || typeof obj !== "object" || depth > 8) {
+    return "";
+  }
 
-    container.type,
-    container.containerType,
-    container.equipmentType,
-    container.isoCode,
-    container.sizeType,
-    container.size,
-    container.description,
+  const preferredKeys = [
+    "containerType",
+    "container_type",
+    "containerSize",
+    "container_size",
+    "containerIsoCode",
+    "containerISOCode",
+    "isoSizeType",
+    "iso_size_type",
+    "equipmentType",
+    "equipment_type",
+    "equipmentSize",
+    "equipment_size",
+    "sizeType",
+    "size_type",
+    "sizeCode",
+    "size_code",
+    "isoCode",
+    "iso_code"
+  ];
 
-    s.containerType,
-    s.equipmentType,
-    s.container_type,
-    s.equipment_type,
-    s.isoCode,
-    s.sizeType,
-    s.containerSize,
-    s.container_size,
+  // Pehle direct fields check karein
+  for (const key of preferredKeys) {
+    const value = obj[key];
 
-    details.containerType,
-    details.equipmentType,
-    details.containerSize,
+    if (
+      value !== null &&
+      value !== undefined &&
+      typeof value === "string" &&
+      value.trim() !== ""
+    ) {
+      return value.trim();
+    }
 
-    refs.containerType
-  );
+    if (
+      typeof value === "number" &&
+      Number.isFinite(value)
+    ) {
+      return String(value);
+    }
 
-  setText("rType", containerType || "Not provided by API");
+    if (value && typeof value === "object") {
+      const nestedValue = findContainerSize(value, depth + 1);
+      if (nestedValue) return nestedValue;
+    }
+  }
+
+  // Container aur equipment ke nested records check karein
+  for (const key of Object.keys(obj)) {
+    if (/container|equipment/i.test(key)) {
+      const value = obj[key];
+
+      if (value && typeof value === "object") {
+        const nestedValue = findContainerSize(value, depth + 1);
+        if (nestedValue) return nestedValue;
+      }
+    }
+  }
+
+  return "";
+}
+
+const containerType =
+  findContainerSize(equipment) ||
+  findContainerSize(container) ||
+  findContainerSize(s) ||
+  findContainerSize(details) ||
+  findContainerSize(refs);
+
+setText("rType", containerType || "Not provided by API");;
 
   setText("rPOL", originLocation.name);
   setText("rPOD", destinationLocation.name);
