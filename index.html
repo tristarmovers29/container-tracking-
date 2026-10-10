@@ -52,27 +52,23 @@ body {
 }
 
 .search {
-  max-width: 1000px;
+  max-width: 900px;
   background: white;
   padding: 10px;
   border-radius: 12px;
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
   box-shadow: 0 12px 30px #0003;
 }
 
-.search input,
-.search select {
+.search input {
   flex: 1;
-  min-width: 180px;
-  border: 1px solid #e0e7ee;
-  border-radius: 9px;
+  min-width: 0;
+  border: 0;
   outline: 0;
-  padding: 15px;
-  font-size: 16px;
+  padding: 16px;
+  font-size: 17px;
   color: #172033;
-  background: white;
 }
 
 .search button {
@@ -86,7 +82,7 @@ body {
   cursor: pointer;
 }
 
-.search button:hover { background: #096650; }
+.search button:disabled { opacity: .65; cursor: wait; }
 
 .container {
   max-width: 1200px;
@@ -102,6 +98,8 @@ body {
   padding: 24px;
   margin-bottom: 20px;
 }
+
+.hidden { display: none !important; }
 
 .grid {
   display: grid;
@@ -125,22 +123,89 @@ body {
 }
 
 .value {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   margin-top: 7px;
-  line-height: 1.5;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
-.info {
-  color: #245779;
-  background: #eef8ff;
-  border: 1px solid #cce8fa;
-  padding: 15px;
+.status {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: #e5f7f0;
+  color: #087052;
+  font-weight: 700;
+  font-size: 13px;
+  height: fit-content;
+}
+
+.route {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.routeBox {
+  padding: 18px;
+  background: #f7fafc;
   border-radius: 10px;
-  margin-bottom: 20px;
+  border: 1px solid #e5ebf1;
+  min-width: 0;
   overflow-wrap: anywhere;
 }
+
+.routeBox strong {
+  display: block;
+  font-size: 19px;
+  margin-top: 8px;
+}
+
+.line { height: 3px; background: #b8c5d2; position: relative; }
+
+.dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #0d7c66;
+  position: absolute;
+  top: -5px;
+}
+
+.dot.left { left: 0; }
+.dot.right { right: 0; }
+
+.timeline {
+  border-left: 3px solid #d7e1e9;
+  margin: 25px 0 5px 12px;
+  padding-left: 25px;
+}
+
+.event {
+  position: relative;
+  margin: 0 0 24px;
+  overflow-wrap: anywhere;
+}
+
+.event:before {
+  content: "";
+  position: absolute;
+  left: -34px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  background: #0d7c66;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #b7c9d5;
+}
+
+.event .date { font-size: 12px; color: #6d7c8e; font-weight: 700; }
+.event h4 { margin: 5px 0; }
+.event p { margin: 0; color: #526274; line-height: 1.5; }
 
 .error {
   color: #a52d2d;
@@ -152,35 +217,13 @@ body {
   overflow-wrap: anywhere;
 }
 
-.hidden { display: none !important; }
-
-.carrier-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.carrier-link {
-  display: block;
-  background: #f7fafc;
-  border: 1px solid #e5ebf1;
-  border-radius: 10px;
+.info {
+  color: #245779;
+  background: #eef8ff;
+  border: 1px solid #cce8fa;
   padding: 15px;
-  text-decoration: none;
-  color: #174563;
-  font-weight: 700;
-  transition: background .2s;
-}
-
-.carrier-link:hover { background: #eaf4f8; }
-
-.carrier-link small {
-  display: block;
-  margin-top: 6px;
-  color: #68778a;
-  font-weight: 400;
-  line-height: 1.5;
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
 
 .footer {
@@ -193,21 +236,16 @@ body {
 @media (max-width: 800px) {
   .hero h1 { font-size: 31px; }
   .search { flex-direction: column; }
-  .search input,
-  .search select,
-  .search button {
-    width: 100%;
-    min-height: 50px;
-  }
+  .search button { min-height: 50px; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .carrier-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .route { grid-template-columns: 1fr; }
+  .line { display: none; }
 }
 
 @media (max-width: 460px) {
-  .grid, .carrier-list { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
   .hero { padding-top: 38px; }
   .card { padding: 18px; }
-  .logo { font-size: 18px; }
 }
 </style>
 </head>
@@ -215,41 +253,22 @@ body {
 <body>
 
 <header class="header">
-  <div class="logo">🚢 CONTAINER TRACK &amp; TRACE</div>
+  <div class="logo">🚢 CONTAINER TRACK & TRACE</div>
   <div class="badge">MULTI-CARRIER TRACKING</div>
 </header>
 
 <section class="hero">
   <h1>Track Your Container</h1>
   <p>
-    Enter your container number, select a shipping line,
-    and open its official tracking website without using
-    paid Tracking One API credits.
+    Enter a container number to check shipment status,
+    vessel details, estimated dates and available movement history.
   </p>
 
   <div class="search">
-    <select id="shippingLine" aria-label="Select shipping line">
-      <option value="">Select Shipping Line</option>
-      <option value="msc">MSC</option>
-      <option value="maersk">Maersk</option>
-      <option value="cma">CMA CGM</option>
-      <option value="hapag">Hapag-Lloyd</option>
-      <option value="cosco">COSCO SHIPPING</option>
-      <option value="one">Ocean Network Express (ONE)</option>
-      <option value="evergreen">Evergreen</option>
-      <option value="zim">ZIM</option>
-      <option value="oocl">OOCL</option>
-      <option value="yangming">Yang Ming</option>
-      <option value="hmm">HMM</option>
-    </select>
-
-    <input
-      id="containerNo"
+    <input id="containerNo"
       placeholder="Enter container number e.g. MEDU9270627"
       autocomplete="off"
-      aria-label="Container, booking or bill of lading number"
-    >
-
+      aria-label="Container, booking or bill of lading number">
     <button id="trackButton" type="button" onclick="trackContainer()">
       TRACK CONTAINER
     </button>
@@ -261,246 +280,532 @@ body {
   <div id="welcome" class="card">
     <h2>Container Tracking Center</h2>
     <p>
-      Select your shipping line and enter your container,
-      booking or bill of lading reference.
+      Search using a container number, booking reference or bill of lading
+      reference supported by the tracking provider.
     </p>
-    <p>
-      <b>Example:</b> MEDU9270627
-    </p>
-    <div class="info">
-      This free version opens the shipping line's website.
-      You may need to paste your reference into its tracking form.
-      Automatic tracking data inside this website is not available
-      through this method.
-    </div>
+    <p><b>Test reference:</b> MEDU9270627</p>
+  </div>
+
+  <div id="loading" class="info hidden">
+    Contacting the tracking service. Please wait...
   </div>
 
   <div id="error" class="error hidden" role="alert"></div>
 
-  <div id="result" class="card hidden">
-    <h2>Tracking Request</h2>
-    <div class="label">Reference Number</div>
-    <div id="rContainer" class="value"></div>
+  <div id="result" class="hidden">
 
-    <div class="label" style="margin-top:16px">Selected Shipping Line</div>
-    <div id="rLine" class="value"></div>
-
-    <div class="info" style="margin-top:20px">
-      The carrier's official website has been opened in a new tab.
-      Paste your reference number into the tracking form there to
-      view available shipment details.
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="label">Container / Reference Number</div>
+          <h2 id="rContainer" style="margin:6px 0 0;overflow-wrap:anywhere"></h2>
+        </div>
+        <div id="rStatus" class="status">STATUS UNKNOWN</div>
+      </div>
     </div>
 
-    <a
-      id="openCarrierAgain"
-      class="carrier-link"
-      href="#"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Open Official Tracking Website Again
-    </a>
+    <div class="card">
+      <h3>Shipment Overview</h3>
 
-    <button
-      type="button"
-      onclick="copyReference()"
-      style="margin-top:14px;padding:12px 18px;border:0;border-radius:8px;background:#0d7c66;color:white;font-weight:700;cursor:pointer"
-    >
-      Copy Reference Number
-    </button>
+      <div class="grid">
+        <div class="stat">
+          <div class="label">Shipping Line</div>
+          <div class="value" id="rLine">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Vessel</div>
+          <div class="value" id="rVessel">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Voyage</div>
+          <div class="value" id="rVoyage">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Last Known Location</div>
+          <div class="value" id="rLocation">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Departure / ETD</div>
+          <div class="value" id="rETD">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Arrival / ETA</div>
+          <div class="value" id="rETA">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Last Update</div>
+          <div class="value" id="rUpdated">Not available</div>
+        </div>
+        <div class="stat">
+          <div class="label">Container Type / Size</div>
+          <div class="value" id="rType">Not provided by API</div>
+        </div>
+      </div>
 
-    <div id="copyMessage" style="margin-top:10px;color:#087052"></div>
-  </div>
+      <div class="route">
+        <div class="routeBox">
+          <div class="label">Port of Loading</div>
+          <strong id="rPOL">Not available</strong>
+        </div>
+        <div class="line">
+          <span class="dot left"></span>
+          <span class="dot right"></span>
+        </div>
+        <div class="routeBox">
+          <div class="label">Port of Discharge</div>
+          <strong id="rPOD">Not available</strong>
+        </div>
+      </div>
 
-  <div class="card">
-    <h2>Official Shipping Line Websites</h2>
-    <p>
-      Choose a carrier below to visit its website. Some links lead
-      to the carrier's main website, where you may need to locate
-      the tracking tool.
-    </p>
-
-    <div class="carrier-list">
-      <a class="carrier-link" href="https://www.msc.com/en/track-a-shipment" target="_blank" rel="noopener noreferrer">
-        MSC
-        <small>Official shipment tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.maersk.com/tracking/" target="_blank" rel="noopener noreferrer">
-        Maersk
-        <small>Tracking portal</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.cma-cgm.com/" target="_blank" rel="noopener noreferrer">
-        CMA CGM
-        <small>Official website; locate tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.hapag-lloyd.com/en/online-business/track/track.html" target="_blank" rel="noopener noreferrer">
-        Hapag-Lloyd
-        <small>Official tracking portal</small>
-      </a>
-
-      <a class="carrier-link" href="https://elines.coscoshipping.com/ebusiness/cargotracking" target="_blank" rel="noopener noreferrer">
-        COSCO SHIPPING
-        <small>Online cargo tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking" target="_blank" rel="noopener noreferrer">
-        ONE
-        <small>Cargo tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.evergreen-marine.com/" target="_blank" rel="noopener noreferrer">
-        Evergreen
-        <small>Official website; locate tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.zim.com/tools/track-a-shipment" target="_blank" rel="noopener noreferrer">
-        ZIM
-        <small>Track a shipment</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.oocl.com/" target="_blank" rel="noopener noreferrer">
-        OOCL
-        <small>Official website; locate tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.yangming.com/" target="_blank" rel="noopener noreferrer">
-        Yang Ming
-        <small>Official website; locate tracking</small>
-      </a>
-
-      <a class="carrier-link" href="https://www.hmm21.com/" target="_blank" rel="noopener noreferrer">
-        HMM
-        <small>Official website; locate tracking</small>
-      </a>
+      <div id="routeDates" class="label"></div>
     </div>
-  </div>
 
+    <div class="card">
+      <h3>Container Movement History</h3>
+      <div id="timeline" class="timeline"></div>
+      <p id="historyNote" style="color:#68778a;font-size:13px"></p>
+    </div>
+
+    <div class="card">
+      <div class="label">Tracking Reference</div>
+      <div id="rReference" class="value"></div>
+      <div class="label" style="margin-top:12px">Data Last Updated By Provider</div>
+      <div id="rCache" class="value">Not available</div>
+    </div>
+
+  </div>
 </main>
 
-<footer class="footer">
-  Container Track &amp; Trace • Independent tracking portal
-</footer>
+<div class="footer">
+  Container Track & Trace • Independent tracking portal
+</div>
 
 <script>
 "use strict";
 
-const trackingLinks = {
-  msc: "https://www.msc.com/en/track-a-shipment",
-  maersk: "https://www.maersk.com/tracking/",
-  cma: "https://www.cma-cgm.com/",
-  hapag: "https://www.hapag-lloyd.com/en/online-business/track/track.html",
-  cosco: "https://elines.coscoshipping.com/ebusiness/cargotracking",
-  one: "https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking",
-  evergreen: "https://www.evergreen-marine.com/",
-  zim: "https://www.zim.com/tools/track-a-shipment",
-  oocl: "https://www.oocl.com/",
-  yangming: "https://www.yangming.com/",
-  hmm: "https://www.hmm21.com/"
-};
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbzNyAKEbexR9_NGYCrUrG0K7aVgPbDarDMFHFK0fiIo8dnrjrxGyOaD2no-EMsKCYA/exec";
 
-const carrierNames = {
-  msc: "MSC",
-  maersk: "Maersk",
-  cma: "CMA CGM",
-  hapag: "Hapag-Lloyd",
-  cosco: "COSCO SHIPPING",
-  one: "Ocean Network Express (ONE)",
-  evergreen: "Evergreen",
-  zim: "ZIM",
-  oocl: "OOCL",
-  yangming: "Yang Ming",
-  hmm: "HMM"
-};
-
-let currentReference = "";
-let currentCarrierUrl = "";
+let requestNumber = 0;
 
 function trackContainer() {
   const input = document.getElementById("containerNo");
-  const carrier = document.getElementById("shippingLine").value;
-  const number = input.value.trim().toUpperCase();
+  const no = input.value.trim().toUpperCase();
 
   hideError();
-  document.getElementById("result").classList.add("hidden");
+  hideResult();
 
-  if (!number) {
+  if (!no) {
     showError("Please enter a container or shipment reference number.");
     input.focus();
     return;
   }
 
-  if (!carrier) {
-    showError("Please select a shipping line first.");
-    document.getElementById("shippingLine").focus();
-    return;
+  const currentRequest = ++requestNumber;
+  const button = document.getElementById("trackButton");
+
+  button.disabled = true;
+  button.textContent = "TRACKING...";
+  document.getElementById("loading").classList.remove("hidden");
+  document.getElementById("welcome").classList.add("hidden");
+
+  const callbackName =
+    "trackingCallback_" + Date.now() + "_" + currentRequest;
+
+  const script = document.createElement("script");
+  let finished = false;
+
+  const timeoutId = setTimeout(function() {
+    finish();
+    if (currentRequest === requestNumber) {
+      showError("The tracking request timed out. Please try again.");
+    }
+  }, 45000);
+
+  function finish() {
+    if (finished) return;
+    finished = true;
+
+    clearTimeout(timeoutId);
+    script.remove();
+    delete window[callbackName];
+
+    button.disabled = false;
+    button.textContent = "TRACK CONTAINER";
+    document.getElementById("loading").classList.add("hidden");
   }
 
-  const url = trackingLinks[carrier];
+  window[callbackName] = function(response) {
+    finish();
 
-  if (!url) {
-    showError("The tracking website is not configured for this shipping line.");
-    return;
+    if (currentRequest !== requestNumber) return;
+
+    if (!response || response.success !== true) {
+      showError(
+        response && (response.error || response.message) ||
+        "Tracking failed. Please check the reference and retry."
+      );
+      return;
+    }
+
+    const providerData = response.data || {};
+    const shipment = providerData.shipment;
+
+    if (!shipment) {
+      showError(
+        "The tracking provider responded, but no shipment record was returned for " +
+        no + "."
+      );
+      return;
+    }
+
+    renderShipment(shipment, no);
+  };
+
+  script.onerror = function() {
+    finish();
+    if (currentRequest === requestNumber) {
+      showError(
+        "Unable to connect to the tracking service. Check the deployment and try again."
+      );
+    }
+  };
+
+  const separator = API_URL.includes("?") ? "&" : "?";
+
+  script.src = API_URL + separator +
+    "action=track" +
+    "&referenceNumber=" + encodeURIComponent(no) +
+    "&callback=" + encodeURIComponent(callbackName);
+
+  document.body.appendChild(script);
+}
+
+/* Read the first non-empty value from supported API fields. */
+function firstValue() {
+  for (let i = 0; i < arguments.length; i++) {
+    const value = arguments[i];
+
+    if (value !== null && value !== undefined && value !== "") {
+      if (typeof value === "string" && value.trim() === "") continue;
+      if (typeof value === "object") continue;
+      return value;
+    }
+  }
+  return "";
+}
+
+function renderShipment(shipment, searchedNumber) {
+  const s = shipment || {};
+  const route = s.route || {};
+
+  const pol = route.portOfLoading || {};
+  const pod = route.portOfDischarge || {};
+  const receipt = route.placeOfReceipt || {};
+  const delivery = route.placeOfDelivery || {};
+
+  const originLocation = pol.location || receipt.location || {};
+  const destinationLocation = pod.location || delivery.location || {};
+
+  const departure = pol.departure || {};
+  const arrival = pod.arrival || {};
+
+  const departureTransport = departure.transport || {};
+  const arrivalTransport = arrival.transport || {};
+
+  const transport = arrivalTransport.name
+    ? arrivalTransport
+    : departureTransport;
+
+  const refs = s.references || {};
+  const carrier = s.carrier || {};
+  const equipment = s.equipment || {};
+  const container = s.container || {};
+  const details = s.details || {};
+
+  const containerNumber =
+    firstValue(refs.containerNumber, s.containerNumber, searchedNumber);
+
+  setText("rContainer", containerNumber);
+  setText("rStatus", humanize(s.status || "UNKNOWN"));
+  setText("rLine", firstValue(carrier.name, carrier.code));
+  setText("rVessel", transport.name);
+  setText("rVoyage", transport.voyageNumber);
+
+  setText(
+    "rLocation",
+    firstValue(
+      s.lastKnownLocation && s.lastKnownLocation.name,
+      typeof s.lastKnownLocation === "string" ? s.lastKnownLocation : "",
+      destinationLocation.name,
+      originLocation.name
+    ) || "Location not provided"
+  );
+
+  setText("rETD", formatDate(departure.date));
+  setText("rETA", formatDate(arrival.date));
+  setText("rUpdated", formatDate(s.updatedAt, true));
+
+  /*
+   * Container type can appear under different keys depending on
+   * the provider's response schema. Do not treat shipment.type
+   * (for example, "CONTAINER") as the physical container size.
+   */
+  const containerType = firstValue(
+    equipment.type,
+    equipment.containerType,
+    equipment.equipmentType,
+    equipment.isoCode,
+    equipment.sizeType,
+    equipment.size,
+    equipment.description,
+    container.type,
+    container.containerType,
+    container.equipmentType,
+    container.isoCode,
+    container.sizeType,
+    container.size,
+    s.containerType,
+    s.equipmentType,
+    s.container_type,
+    s.equipment_type,
+    s.isoCode,
+    s.sizeType,
+    s.containerSize,
+    s.container_size,
+    details.containerType,
+    details.equipmentType,
+    details.containerSize,
+    refs.containerType
+  );
+
+  setText("rType", containerType || "Not provided by API");
+
+  setText("rPOL", originLocation.name);
+  setText("rPOD", destinationLocation.name);
+
+  const routeDates = [];
+
+  if (departure.date) {
+    routeDates.push(
+      "Departure: " + formatDate(departure.date) +
+      (departure.isActual === true ? " (Actual)" :
+       departure.isActual === false ? " (Estimated)" : "")
+    );
   }
 
-  currentReference = number;
-  currentCarrierUrl = url;
+  if (arrival.date) {
+    routeDates.push(
+      "Arrival: " + formatDate(arrival.date) +
+      (arrival.isActual === true ? " (Actual)" :
+       arrival.isActual === false ? " (Estimated)" : "")
+    );
+  }
 
-  document.getElementById("rContainer").textContent = number;
-  document.getElementById("rLine").textContent = carrierNames[carrier];
+  setText("routeDates", routeDates.join(" • "));
 
-  const link = document.getElementById("openCarrierAgain");
-  link.href = url;
+  setText(
+    "rReference",
+    firstValue(
+      refs.blNumber,
+      refs.bookingNumber,
+      refs.containerNumber,
+      s.referenceNumber,
+      searchedNumber
+    )
+  );
 
-  // Open the carrier website directly from the user's click.
-  const newTab = window.open(url, "_blank", "noopener,noreferrer");
+  setText("rCache", formatDate(s.cacheExpiresAt, true));
+
+  renderHistory(s, route);
 
   document.getElementById("result").classList.remove("hidden");
   document.getElementById("welcome").classList.add("hidden");
-
-  if (!newTab) {
-    showError(
-      "Your browser blocked the new tab. Use the 'Open Official Tracking Website Again' link below."
-    );
-  }
 }
 
-function copyReference() {
-  const message = document.getElementById("copyMessage");
+function renderHistory(shipment, route) {
+  const timeline = document.getElementById("timeline");
+  const historyNote = document.getElementById("historyNote");
 
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(currentReference)
-      .then(function() {
-        message.textContent = "Reference number copied.";
-      })
-      .catch(function() {
-        fallbackCopyReference(message);
+  timeline.replaceChildren();
+  historyNote.textContent = "";
+
+  const possibleEvents = [
+    shipment.events,
+    shipment.milestones,
+    shipment.trackingEvents,
+    shipment.containers &&
+      shipment.containers[0] &&
+      shipment.containers[0].events
+  ];
+
+  let events = [];
+
+  for (let i = 0; i < possibleEvents.length; i++) {
+    if (Array.isArray(possibleEvents[i]) && possibleEvents[i].length > 0) {
+      events = possibleEvents[i];
+      break;
+    }
+  }
+
+  if (events.length > 0) {
+    events.forEach(function(event) {
+      const location = event.location;
+      const locationName = typeof location === "string"
+        ? location
+        : location && location.name
+          ? location.name
+          : "";
+
+      addEvent(
+        event.date || event.eventDate || event.timestamp || event.datetime,
+        event.description || event.eventDescription ||
+          event.eventType || event.status || event.type ||
+          "Shipment update",
+        locationName
+      );
+    });
+    return;
+  }
+
+  const milestones = [];
+  const pol = route.portOfLoading || {};
+  const pod = route.portOfDischarge || {};
+  const receipt = route.placeOfReceipt || {};
+  const delivery = route.placeOfDelivery || {};
+
+  if (receipt.arrival && receipt.arrival.date) {
+    milestones.push({
+      date: receipt.arrival.date,
+      title: "Arrived at Place of Receipt",
+      location: receipt.location && receipt.location.name
+    });
+  }
+
+  if (pol.departure && pol.departure.date) {
+    milestones.push({
+      date: pol.departure.date,
+      title: pol.departure.isActual === true
+        ? "Vessel Departed"
+        : "Estimated Vessel Departure",
+      location: pol.location && pol.location.name
+    });
+  }
+
+  (route.transshipmentPorts || []).forEach(function(port) {
+    if (port.arrival && port.arrival.date) {
+      milestones.push({
+        date: port.arrival.date,
+        title: "Transshipment Arrival",
+        location: port.location && port.location.name
       });
+    }
+
+    if (port.departure && port.departure.date) {
+      milestones.push({
+        date: port.departure.date,
+        title: "Transshipment Departure",
+        location: port.location && port.location.name
+      });
+    }
+  });
+
+  if (pod.arrival && pod.arrival.date) {
+    milestones.push({
+      date: pod.arrival.date,
+      title: pod.arrival.isActual === true
+        ? "Arrived at Port of Discharge"
+        : "Estimated Arrival",
+      location: pod.location && pod.location.name
+    });
+  }
+
+  if (delivery.arrival && delivery.arrival.date) {
+    milestones.push({
+      date: delivery.arrival.date,
+      title: "Arrived at Place of Delivery",
+      location: delivery.location && delivery.location.name
+    });
+  }
+
+  milestones.forEach(function(event) {
+    addEvent(event.date, event.title, event.location || "");
+  });
+
+  if (milestones.length === 0) {
+    addEvent(
+      shipment.updatedAt,
+      "Latest Provider Status: " + humanize(shipment.status || "UNKNOWN"),
+      "The provider did not return detailed movement events for this request."
+    );
+
+    historyNote.textContent =
+      "Only the latest reported status is available. No additional movement events were provided.";
   } else {
-    fallbackCopyReference(message);
+    historyNote.textContent =
+      "Showing route milestones included in the provider response. This may not be the complete movement history.";
   }
 }
 
-function fallbackCopyReference(message) {
-  const textarea = document.createElement("textarea");
-  textarea.value = currentReference;
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
+function addEvent(date, title, description) {
+  const timeline = document.getElementById("timeline");
+  const item = document.createElement("div");
+  item.className = "event";
 
-  try {
-    const copied = document.execCommand("copy");
-    message.textContent = copied
-      ? "Reference number copied."
-      : "Please copy this reference manually: " + currentReference;
-  } catch (error) {
-    message.textContent = "Please copy this reference manually: " + currentReference;
+  const dateEl = document.createElement("div");
+  dateEl.className = "date";
+  dateEl.textContent = formatDate(date, true);
+
+  const titleEl = document.createElement("h4");
+  titleEl.textContent = title || "Shipment update";
+
+  const descEl = document.createElement("p");
+  descEl.textContent = description || "";
+
+  item.appendChild(dateEl);
+  item.appendChild(titleEl);
+
+  if (description) item.appendChild(descEl);
+
+  timeline.appendChild(item);
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  element.textContent =
+    value === null || value === undefined || value === ""
+      ? "Not available"
+      : String(value);
+}
+
+function formatDate(value, includeTime) {
+  if (!value) return "Not available";
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return String(value);
+
+  const options = {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC"
+  };
+
+  if (includeTime) {
+    options.hour = "2-digit";
+    options.minute = "2-digit";
+    options.timeZone = "UTC";
   }
 
-  textarea.remove();
+  return date.toLocaleString("en-GB", options) + " UTC";
+}
+
+function humanize(value) {
+  return String(value || "UNKNOWN")
+    .replace(/[_-]+/g, " ")
+    .toUpperCase();
 }
 
 function showError(message) {
@@ -513,12 +818,14 @@ function hideError() {
   document.getElementById("error").classList.add("hidden");
 }
 
+function hideResult() {
+  document.getElementById("result").classList.add("hidden");
+}
+
 document.getElementById("containerNo").addEventListener(
   "keydown",
   function(event) {
-    if (event.key === "Enter") {
-      trackContainer();
-    }
+    if (event.key === "Enter") trackContainer();
   }
 );
 </script>
