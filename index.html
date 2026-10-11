@@ -1,3 +1,37 @@
+chall gai hai 
+
+Zabardast! 👍 Achha hua aapki Container Track & Trace website chal gai hai.
+
+Abhi website ke code mein koi unnecessary change na karein. Pehle confirm kar lein ke:
+
+Container tracking sahi kaam kar rahi hai.
+
+API se tracking status aa raha hai.
+
+Page refresh karne ke baad bhi website chalti hai.
+
+Agar yeh teeno cheezein theek hain, to website filhal stable hai.
+
+Container Type
+
+Not provided by API
+
+Samajh gaya. Aapki Container Track & Trace website chal rahi hai, lekin Container Type ke saamne Not provided by API aa raha hai.
+
+Iska matlab ho sakta hai ke API response mein container type available nahi hai, ya website code us field ko sahi tarah read nahi kar raha.
+
+Ab yeh karein:
+
+Website par kisi container ka tracking result open karein.
+
+API ka raw JSON response dekhein.
+
+Response mein containerType, equipmentType, container_size ya type jaisi field check karein.
+
+Aapne pehle jo API response share kiya tha, usmein type: "CONTAINER" tha. Yeh shipment ka type hai; zaroori nahi ke yeh container size/type (jaise 20GP, 40GP ya 40HC) ho.
+
+Mujhe apni index.html ka current poora code bhej dein. Main usmein Container Type wali field check karke aapko updated code dunga, aur website ke baqi tracking features ko bhi waise hi rakhunga.
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +61,10 @@ body {
   flex-wrap: wrap;
 }
 
-.logo { font-size: 22px; font-weight: 800; }
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+}
 
 .badge {
   font-size: 12px;
@@ -42,7 +79,10 @@ body {
   padding: 55px 6% 70px;
 }
 
-.hero h1 { font-size: 42px; margin: 0 0 12px; }
+.hero h1 {
+  font-size: 42px;
+  margin: 0 0 12px;
+}
 
 .hero p {
   font-size: 17px;
@@ -82,7 +122,10 @@ body {
   cursor: pointer;
 }
 
-.search button:disabled { opacity: .65; cursor: wait; }
+.search button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
 
 .container {
   max-width: 1200px;
@@ -127,7 +170,6 @@ body {
   font-weight: 700;
   margin-top: 7px;
   line-height: 1.4;
-  overflow-wrap: anywhere;
 }
 
 .status {
@@ -164,7 +206,11 @@ body {
   margin-top: 8px;
 }
 
-.line { height: 3px; background: #b8c5d2; position: relative; }
+.line {
+  height: 3px;
+  background: #b8c5d2;
+  position: relative;
+}
 
 .dot {
   width: 13px;
@@ -203,7 +249,12 @@ body {
   box-shadow: 0 0 0 1px #b7c9d5;
 }
 
-.event .date { font-size: 12px; color: #6d7c8e; font-weight: 700; }
+.event .date {
+  font-size: 12px;
+  color: #6d7c8e;
+  font-weight: 700;
+}
+
 .event h4 { margin: 5px 0; }
 .event p { margin: 0; color: #526274; line-height: 1.5; }
 
@@ -265,10 +316,12 @@ body {
   </p>
 
   <div class="search">
-    <input id="containerNo"
+    <input
+      id="containerNo"
       placeholder="Enter container number e.g. MEDU9270627"
       autocomplete="off"
-      aria-label="Container, booking or bill of lading number">
+      aria-label="Container, booking or bill of lading number"
+    >
     <button id="trackButton" type="button" onclick="trackContainer()">
       TRACK CONTAINER
     </button>
@@ -283,7 +336,9 @@ body {
       Search using a container number, booking reference or bill of lading
       reference supported by the tracking provider.
     </p>
-    <p><b>Test reference:</b> MEDU9270627</p>
+    <p>
+      <b>Test reference:</b> MEDU9270627
+    </p>
   </div>
 
   <div id="loading" class="info hidden">
@@ -312,33 +367,40 @@ body {
           <div class="label">Shipping Line</div>
           <div class="value" id="rLine">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Vessel</div>
           <div class="value" id="rVessel">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Voyage</div>
           <div class="value" id="rVoyage">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Last Known Location</div>
           <div class="value" id="rLocation">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Departure / ETD</div>
           <div class="value" id="rETD">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Arrival / ETA</div>
           <div class="value" id="rETA">Not available</div>
         </div>
+
         <div class="stat">
           <div class="label">Last Update</div>
           <div class="value" id="rUpdated">Not available</div>
         </div>
+
         <div class="stat">
-          <div class="label">Container Type / Size</div>
-          <div class="value" id="rType">Not provided by API</div>
+          <div class="label">Container Type</div>
+          <div class="value" id="rType">Not available</div>
         </div>
       </div>
 
@@ -347,10 +409,12 @@ body {
           <div class="label">Port of Loading</div>
           <strong id="rPOL">Not available</strong>
         </div>
+
         <div class="line">
           <span class="dot left"></span>
           <span class="dot right"></span>
         </div>
+
         <div class="routeBox">
           <div class="label">Port of Discharge</div>
           <strong id="rPOD">Not available</strong>
@@ -383,6 +447,10 @@ body {
 <script>
 "use strict";
 
+/*
+ * Google Apps Script backend.
+ * Keep the Tracking One API key in Script Properties only.
+ */
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzNyAKEbexR9_NGYCrUrG0K7aVgPbDarDMFHFK0fiIo8dnrjrxGyOaD2no-EMsKCYA/exec";
 
@@ -409,16 +477,23 @@ function trackContainer() {
   document.getElementById("loading").classList.remove("hidden");
   document.getElementById("welcome").classList.add("hidden");
 
-  const callbackName =
-    "trackingCallback_" + Date.now() + "_" + currentRequest;
+  /*
+   * JSONP avoids browser CORS restrictions when the page is hosted
+   * separately on GitHub Pages.
+   */
+  const callbackName = "trackingCallback_" +
+    Date.now() + "_" + currentRequest;
 
   const script = document.createElement("script");
   let finished = false;
 
   const timeoutId = setTimeout(function() {
     finish();
+
     if (currentRequest === requestNumber) {
-      showError("The tracking request timed out. Please try again.");
+      showError(
+        "The tracking request timed out. Please try again."
+      );
     }
   }, 45000);
 
@@ -441,9 +516,11 @@ function trackContainer() {
     if (currentRequest !== requestNumber) return;
 
     if (!response || response.success !== true) {
+      const details = response &&
+        (response.error || response.message);
+
       showError(
-        response && (response.error || response.message) ||
-        "Tracking failed. Please check the reference and retry."
+        details || "Tracking failed. Please check the reference and retry."
       );
       return;
     }
@@ -464,6 +541,7 @@ function trackContainer() {
 
   script.onerror = function() {
     finish();
+
     if (currentRequest === requestNumber) {
       showError(
         "Unable to connect to the tracking service. Check the deployment and try again."
@@ -479,20 +557,6 @@ function trackContainer() {
     "&callback=" + encodeURIComponent(callbackName);
 
   document.body.appendChild(script);
-}
-
-/* Read the first non-empty value from supported API fields. */
-function firstValue() {
-  for (let i = 0; i < arguments.length; i++) {
-    const value = arguments[i];
-
-    if (value !== null && value !== undefined && value !== "") {
-      if (typeof value === "string" && value.trim() === "") continue;
-      if (typeof value === "object") continue;
-      return value;
-    }
-  }
-  return "";
 }
 
 function renderShipment(shipment, searchedNumber) {
@@ -517,72 +581,45 @@ function renderShipment(shipment, searchedNumber) {
     ? arrivalTransport
     : departureTransport;
 
-  const refs = s.references || {};
+  const references = s.references || {};
   const carrier = s.carrier || {};
-  const equipment = s.equipment || {};
-  const container = s.container || {};
-  const details = s.details || {};
 
   const containerNumber =
-    firstValue(refs.containerNumber, s.containerNumber, searchedNumber);
+    references.containerNumber || searchedNumber;
 
   setText("rContainer", containerNumber);
   setText("rStatus", humanize(s.status || "UNKNOWN"));
-  setText("rLine", firstValue(carrier.name, carrier.code));
-  setText("rVessel", transport.name);
-  setText("rVoyage", transport.voyageNumber);
+  setText("rLine", carrier.name || carrier.code || "Not available");
+  setText("rVessel", transport.name || "Not available");
+  setText("rVoyage", transport.voyageNumber || "Not available");
 
+  /*
+   * A tracking response does not always include the vessel's current
+   * position. Show a known route location rather than inventing one.
+   */
   setText(
     "rLocation",
-    firstValue(
-      s.lastKnownLocation && s.lastKnownLocation.name,
-      typeof s.lastKnownLocation === "string" ? s.lastKnownLocation : "",
-      destinationLocation.name,
-      originLocation.name
-    ) || "Location not provided"
+    destinationLocation.name ||
+    originLocation.name ||
+    "Location not provided"
   );
 
   setText("rETD", formatDate(departure.date));
   setText("rETA", formatDate(arrival.date));
+
   setText("rUpdated", formatDate(s.updatedAt, true));
 
-  /*
-   * Container type can appear under different keys depending on
-   * the provider's response schema. Do not treat shipment.type
-   * (for example, "CONTAINER") as the physical container size.
-   */
-  const containerType = firstValue(
-    equipment.type,
-    equipment.containerType,
-    equipment.equipmentType,
-    equipment.isoCode,
-    equipment.sizeType,
-    equipment.size,
-    equipment.description,
-    container.type,
-    container.containerType,
-    container.equipmentType,
-    container.isoCode,
-    container.sizeType,
-    container.size,
-    s.containerType,
-    s.equipmentType,
-    s.container_type,
-    s.equipment_type,
-    s.isoCode,
-    s.sizeType,
-    s.containerSize,
-    s.container_size,
-    details.containerType,
-    details.equipmentType,
-    details.containerSize,
-    refs.containerType
+  const equipment = s.equipment || {};
+  setText(
+    "rType",
+    equipment.type ||
+    s.containerType ||
+    s.equipmentType ||
+    "Not provided by API"
   );
 
-  setText("rType", containerType || "Not provided by API");
-
-  setText("rPOL", originLocation.name);
-  setText("rPOD", destinationLocation.name);
+  setText("rPOL", originLocation.name || "Not available");
+  setText("rPOD", destinationLocation.name || "Not available");
 
   const routeDates = [];
 
@@ -606,13 +643,10 @@ function renderShipment(shipment, searchedNumber) {
 
   setText(
     "rReference",
-    firstValue(
-      refs.blNumber,
-      refs.bookingNumber,
-      refs.containerNumber,
-      s.referenceNumber,
-      searchedNumber
-    )
+    references.blNumber ||
+    references.bookingNumber ||
+    references.containerNumber ||
+    searchedNumber
   );
 
   setText("rCache", formatDate(s.cacheExpiresAt, true));
@@ -642,7 +676,8 @@ function renderHistory(shipment, route) {
   let events = [];
 
   for (let i = 0; i < possibleEvents.length; i++) {
-    if (Array.isArray(possibleEvents[i]) && possibleEvents[i].length > 0) {
+    if (Array.isArray(possibleEvents[i]) &&
+        possibleEvents[i].length > 0) {
       events = possibleEvents[i];
       break;
     }
@@ -658,17 +693,29 @@ function renderHistory(shipment, route) {
           : "";
 
       addEvent(
-        event.date || event.eventDate || event.timestamp || event.datetime,
-        event.description || event.eventDescription ||
-          event.eventType || event.status || event.type ||
-          "Shipment update",
+        event.date ||
+        event.eventDate ||
+        event.timestamp ||
+        event.datetime,
+        event.description ||
+        event.eventDescription ||
+        event.eventType ||
+        event.status ||
+        event.type ||
+        "Shipment update",
         locationName
       );
     });
+
     return;
   }
 
+  /*
+   * If the provider response has no detailed event list,
+   * show only route milestones actually present in the response.
+   */
   const milestones = [];
+
   const pol = route.portOfLoading || {};
   const pod = route.portOfDischarge || {};
   const receipt = route.placeOfReceipt || {};
@@ -765,7 +812,9 @@ function addEvent(date, title, description) {
   item.appendChild(dateEl);
   item.appendChild(titleEl);
 
-  if (description) item.appendChild(descEl);
+  if (description) {
+    item.appendChild(descEl);
+  }
 
   timeline.appendChild(item);
 }
@@ -784,7 +833,10 @@ function formatDate(value, includeTime) {
   if (!value) return "Not available";
 
   const date = new Date(value);
-  if (isNaN(date.getTime())) return String(value);
+
+  if (isNaN(date.getTime())) {
+    return String(value);
+  }
 
   const options = {
     day: "2-digit",
@@ -825,10 +877,967 @@ function hideResult() {
 document.getElementById("containerNo").addEventListener(
   "keydown",
   function(event) {
-    if (event.key === "Enter") trackContainer();
+    if (event.key === "Enter") {
+      trackContainer();
+    }
   }
 );
 </script>
 
 </body>
 </html>
+
+Samajh gaya 😄 Aapko sirf shipping line ki website open karne wala system nahi chahiye. Aapko apni Container Track & Trace website par hi proper live tracking dashboard chahiye.
+
+Meri recommendation hai ke website ko is tarah banayein:
+
+1. Professional tracking dashboard
+
+Container number enter karein aur apni website par shipment details, vessel, voyage, POL, POD aur ETA dekhein.
+
+2. Shipment movement timeline
+
+Gate-in, loaded on vessel, departed, transshipment aur arrival jaise milestones timeline mein.
+
+3. Premium look
+
+Dark navy theme, glowing status indicators, summary cards, progress bar aur mobile-friendly layout.
+
+Bas ek baat bata dein: aapko kaunsa system chahiye?
+
+Tracking kaise kaam kare?
+
+Automatic tracking — container number se apni website par details aur status
+
+Manual + dashboard — API ke baghair details enter karke professional tracking page
+
+Dono — automatic tracking jab data available ho, warna manual update
+
+Website ka design
+
+Dark navy + blue, modern premium look
+White + blue, clean corporate look
+Ye design aur system banayein
+
+Ek important baat: bilkul free aur har shipping line ki guaranteed live tracking ka wada nahi kar sakte. Lekin hum website ko kaafi behtar bana sakte hain aur available free data ke saath kaam karwa sakte hain.
+
+Today 10:07 PM
+Meri Container Track & Trace website ke liye complete implementation tayar karo. Tracking mode: Automatic tracking. Design: Dark navy and blue premium. GitHub Pages par host hai. Paid API credits use nahi karne; free data ki limitations clearly batana aur complete copy-paste code dena.
+
+Hum aapki Container Track & Trace website ko ek proper premium logistics dashboard mein convert karenge — dark navy background, blue highlights, container search, shipment status, ETA, vessel details aur movement timeline ke saath.
+
+Lekin ek zaroori farq hai: GitHub Pages sirf website host karta hai; woh khud shipping-line tracking data provide nahi karta. Is liye hum paid Tracking One credits ko use nahi karenge, aur kisi fake API response ko live tracking ke taur par show bhi nahi karenge. Automatic tracking tabhi kaam karegi jab kisi container ke liye accessible free data source available ho.
+
+Free tracking ke liye asal options
+
+Traqo Ocean: iska no-key sandbox sirf sample/demo data deta hai, real shipment tracking nahi. Live API ke liye key aur account access chahiye. 
+Traqo Ocean
+
+Carrier ki official websites: kuch containers ka status free check ho sakta hai, lekin har shipping line ka data aapki website par automatically lana guaranteed nahi. Browser restrictions bhi direct API connection ko rok sakti hain. 
+MDN
+
+GitHub Pages: website ke design aur JavaScript ke liye theek hai, lekin API key ko script.js mein rakhna safe nahi. 
+GitHub Docs
++1
+
+Meri salah: pehle premium dashboard aur secure backend banayein, phir kisi verified free allowance wale live data provider ko connect karein. Main fake sample data ko real tracking keh kar present nahi karunga.
+
+Ek cheez confirm kar dein: kya aap Google Apps Script ko free backend ke taur par use kar sakte hain? Is se API key website ke public JavaScript mein rakhne ki zaroorat nahi hogi. Live tracking phir bhi provider ki free quota aur access par depend karegi.
+
+OK KARO
+Step 1 — Free API account
+
+Is implementation ke liye hum Traqo Ocean ka free tier use kar sakte hain. Is mein free account aur API access available hai, lekin har naya shipment monthly allowance mein count ho sakta hai. Is liye ise unlimited free service na samjhein. 
+Traqo Ocean
++1
+
+traqocontainer.com
+.
+
+Dashboard ke Developer section mein jaa kar API key banayein aur Developer mode enable karein.
+
+API key ko private rakhein. Use GitHub ke index.html ya script.js mein paste nahi karna.
+
+Ab neeche dono files ka code hai. Is version mein API key Google Apps Script ke server side par rahegi.
+
+Step 2 — Google Apps Script (Code.gs)
+
+Apps Script mein naya project kholein, Code.gs ka purana code replace karke ye complete code paste karein.
+
+
+/************************************************************
+ * CONTAINER TRACK & TRACE
+ * Backend: Google Apps Script
+ * Provider: Traqo Ocean
+ * API key is stored in Script Properties.
+ ************************************************************/
+
+const TRAQO_BASE_URL = "https://traqocontainer.com/api/v1";
+
+function doGet(e) {
+  const params = (e && e.parameter) || {};
+  const callback = String(params.callback || "");
+
+  let result;
+
+  try {
+    if (params.action === "health") {
+      result = {
+        success: true,
+        message: "Container tracking backend is online."
+      };
+    } else if (params.action === "track") {
+      result = trackShipment_(params);
+    } else {
+      result = {
+        success: false,
+        message: "Invalid action. Use action=track or action=health."
+      };
+    }
+  } catch (err) {
+    result = {
+      success: false,
+      message: err && err.message
+        ? err.message
+        : "Unexpected server error."
+    };
+  }
+
+  const output = JSON.stringify(result);
+
+  // JSONP is used because the frontend is hosted on GitHub Pages.
+  if (callback && /^[A-Za-z_$][0-9A-Za-z_$\.]*$/.test(callback)) {
+    return ContentService
+      .createTextOutput(callback + "(" + output + ");")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(output)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function trackShipment_(params) {
+  const reference = String(params.referenceNumber || "")
+    .trim()
+    .toUpperCase();
+
+  const sealine = String(params.sealine || "")
+    .trim()
+    .toUpperCase();
+
+  if (!reference) {
+    return {
+      success: false,
+      message: "Please enter a container or BL number."
+    };
+  }
+
+  if (!/^[A-Z0-9\-\/]{5,35}$/.test(reference)) {
+    return {
+      success: false,
+      message: "The tracking reference format looks invalid."
+    };
+  }
+
+  // Carrier is required so the free plan does not rely on
+  // automatic carrier discovery.
+  if (!/^[A-Z0-9]{4}$/.test(sealine)) {
+    return {
+      success: false,
+      message: "Please select a shipping line."
+    };
+  }
+
+  const apiKey = PropertiesService
+    .getScriptProperties()
+    .getProperty("TRAQO_API_KEY");
+
+  if (!apiKey) {
+    return {
+      success: false,
+      message: "API key is not configured in Apps Script."
+    };
+  }
+
+  const endpoint = TRAQO_BASE_URL +
+    "/container/" + encodeURIComponent(reference) +
+    "?sealine=" + encodeURIComponent(sealine);
+
+  const response = UrlFetchApp.fetch(endpoint, {
+    method: "get",
+    headers: {
+      Authorization: "Bearer " + apiKey,
+      Accept: "application/json"
+    },
+    muteHttpExceptions: true
+  });
+
+  const statusCode = response.getResponseCode();
+  const body = response.getContentText();
+
+  let data;
+
+  try {
+    data = JSON.parse(body);
+  } catch (err) {
+    return {
+      success: false,
+      message: "The tracking provider returned an unreadable response."
+    };
+  }
+
+  if (statusCode < 200 || statusCode >= 300 ||
+      data.success === false) {
+    return {
+      success: false,
+      statusCode: statusCode,
+      message: getProviderError_(statusCode, data)
+    };
+  }
+
+  const shipment = data.data || data.shipment || data;
+
+  // Keep the provider's actual data; do not invent tracking events.
+  return {
+    success: true,
+    referenceNumber: reference,
+    shipment: shipment
+  };
+}
+
+function getProviderError_(statusCode, data) {
+  const providerMessage =
+    data.statusMessage ||
+    data.message ||
+    (data.data && data.data.message) ||
+    "";
+
+  if (statusCode === 401) {
+    return "API key is invalid. Check Script Properties.";
+  }
+
+  if (statusCode === 402) {
+    return "Free shipment allowance may be exhausted, or account access is paused. Check your provider dashboard. No paid upgrade has been made.";
+  }
+
+  if (statusCode === 403) {
+    return "Enable Developer mode in the provider dashboard.";
+  }
+
+  if (statusCode === 404) {
+    return "No shipment record was returned for this reference and shipping line. Verify both values.";
+  }
+
+  if (statusCode === 429) {
+    return "API rate limit reached. Please wait before trying again.";
+  }
+
+  if (statusCode >= 500) {
+    return "The tracking provider or carrier is temporarily unavailable.";
+  }
+
+  return providerMessage || "Tracking request failed (HTTP " +
+    statusCode + ").";
+}
+Step 3 — API key securely save karein
+
+Apps Script mein:
+
+Project Settings kholein.
+
+Script Properties tak scroll karein.
+
+Add script property par click karein.
+
+Property name: TRAQO_API_KEY
+
+Value: apni Traqo API key.
+
+Save karein.
+
+API key ko GitHub par upload na karein.
+
+Step 4 — Apps Script deploy karein
+
+Deploy → New deployment select karein.
+
+Type mein Web app select karein.
+
+Execute as: Me.
+
+Who has access: Anyone.
+
+Deploy karein aur permissions authorize karein.
+
+Jo URL /exec par khatam hota hai, use copy karein.
+
+Anyone access ka matlab endpoint publicly call ho sakta hai. Is liye API key server-side par hi rakhein aur public endpoint ke excessive use par nazar rakhein.
+
+Step 5 — GitHub Pages ka complete index.html
+
+Apni repository mein index.html kholein. Purana code replace karke ye paste karein. Sirf PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE ko apne deployed /exec URL se replace karna hai.
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07111f">
+<title>Container Track & Trace</title>
+
+<style>
+:root {
+  --bg: #07111f;
+  --panel: #0e1b2d;
+  --panel2: #12243a;
+  --line: #223650;
+  --blue: #3b82f6;
+  --cyan: #38bdf8;
+  --text: #edf5ff;
+  --muted: #91a6c0;
+  --green: #34d399;
+  --red: #fb7185;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 50% -20%, #173d70 0, transparent 55%),
+    var(--bg);
+  font-family: Inter, Segoe UI, Arial, sans-serif;
+  min-height: 100vh;
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.wrap { width: min(1160px, 92%); margin: auto; }
+header {
+  border-bottom: 1px solid #20314a;
+  background: rgba(7,17,31,.85);
+}
+.nav {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 44px; height: 44px; border-radius: 13px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  font-size: 23px; font-weight: 900;
+  box-shadow: 0 8px 30px #2563eb35;
+}
+.brand strong { font-size: 16px; letter-spacing: .5px; }
+.brand small { display: block; color: var(--muted); margin-top: 4px; }
+.pill {
+  border: 1px solid #245c50;
+  background: #0d302d; color: #6ee7b7;
+  border-radius: 99px; padding: 8px 12px;
+  font-size: 12px;
+}
+.hero { text-align: center; padding: 56px 0 30px; }
+.eyebrow {
+  color: var(--cyan); font-size: 12px;
+  letter-spacing: 2px; font-weight: 800;
+}
+h1 {
+  font-size: clamp(32px, 5vw, 54px);
+  line-height: 1.08; letter-spacing: -1.5px;
+  margin: 16px 0;
+}
+h1 span {
+  background: linear-gradient(90deg, #60a5fa, #38bdf8);
+  color: transparent; background-clip: text;
+}
+.hero p {
+  color: var(--muted); line-height: 1.7;
+  max-width: 650px; margin: 0 auto;
+}
+.search-card {
+  max-width: 900px; margin: 28px auto 0;
+  padding: 22px; text-align: left;
+  background: linear-gradient(145deg, #11223a, #0b1728);
+  border: 1px solid #2a4261;
+  border-radius: 20px;
+  box-shadow: 0 22px 70px #0005;
+}
+.fields {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.field label {
+  display: block; color: #bdcce0;
+  font-size: 12px; margin-bottom: 9px; font-weight: 700;
+}
+input, select {
+  width: 100%; min-width: 0;
+  border: 1px solid #304760; border-radius: 11px;
+  padding: 14px; background: #081525;
+  color: var(--text); outline: none;
+}
+input:focus, select:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px #38bdf822;
+}
+.actions {
+  display: flex; gap: 12px; margin-top: 17px;
+}
+.primary, .secondary {
+  border: 0; border-radius: 11px;
+  padding: 14px 19px; font-weight: 800;
+}
+.primary {
+  flex: 1; color: white;
+  background: linear-gradient(100deg, #2563eb, #0284c7);
+  box-shadow: 0 7px 25px #2563eb35;
+}
+.primary:disabled { opacity: .6; cursor: wait; }
+.secondary {
+  color: #d5e5fa; border: 1px solid #304760;
+  background: #13243a;
+}
+.note { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 13px 2px 0; }
+.notice {
+  margin: 20px auto; max-width: 900px;
+  border: 1px solid #344a65; border-radius: 12px;
+  padding: 14px 16px; color: #c4d5e9;
+  background: #0c1b2d; line-height: 1.6;
+}
+.notice.error { border-color: #7f3047; color: #fecdd3; }
+.hidden { display: none !important; }
+#results { margin: 30px auto 60px; }
+.result-head {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 15px;
+  margin-bottom: 18px;
+}
+.result-head h2 { margin: 0 0 7px; font-size: 24px; }
+.muted { color: var(--muted); font-size: 13px; }
+.status {
+  display: inline-block; padding: 8px 12px;
+  border-radius: 99px; font-size: 12px;
+  font-weight: 800; background: #153b37; color: #6ee7b7;
+  border: 1px solid #28645a;
+}
+.grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 18px;
+}
+.card {
+  background: linear-gradient(145deg, #112239, #0c192a);
+  border: 1px solid var(--line);
+  border-radius: 15px; padding: 18px; min-width: 0;
+}
+.card .label {
+  color: var(--muted); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.card .value {
+  font-size: 17px; font-weight: 800;
+  margin-top: 10px; overflow-wrap: anywhere;
+}
+.card .sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.section-title { font-size: 17px; margin: 0 0 16px; }
+.details {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.detail {
+  border: 1px solid #213750; border-radius: 11px;
+  padding: 14px; background: #0b192a;
+}
+.detail .label { font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+.detail .value { overflow-wrap: anywhere; line-height: 1.5; }
+.timeline { margin-top: 14px; }
+.event {
+  position: relative; padding: 0 0 23px 30px;
+  border-left: 1px solid #2d4a69; margin-left: 7px;
+}
+.event:last-child { border-left-color: transparent; padding-bottom: 0; }
+.dot {
+  position: absolute; left: -7px; top: 2px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--cyan); border: 3px solid #12314b;
+  box-shadow: 0 0 0 1px #38bdf855;
+}
+.event-title { font-weight: 800; }
+.event-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+footer {
+  border-top: 1px solid #1e3047; padding: 25px 0;
+  color: var(--muted); text-align: center; font-size: 12px;
+}
+@media (max-width: 760px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .fields, .details { grid-template-columns: 1fr; }
+  .hero { padding-top: 40px; }
+  .search-card { padding: 16px; }
+  .actions { flex-direction: column; }
+  .result-head { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <div class="logo">↗</div>
+      <div>
+        <strong>CONTAINER TRACK</strong>
+        <small>Track & Trace Control Center</small>
+      </div>
+    </div>
+    <div class="pill">● TRACKING SYSTEM</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">GLOBAL OCEAN VISIBILITY</div>
+    <h1>Know where your <span>cargo is.</span></h1>
+    <p>Track container shipments, vessel details, estimated arrival and shipment milestones from one dashboard.</p>
+
+    <div class="search-card">
+      <div class="fields">
+        <div class="field">
+          <label for="sealine">SHIPPING LINE</label>
+          <select id="sealine">
+            <option value="">Select shipping line</option>
+            <option value="MSCU">MSC</option>
+            <option value="MAEU">Maersk</option>
+            <option value="CMDU">CMA CGM</option>
+            <option value="HLCU">Hapag-Lloyd</option>
+            <option value="ONEY">Ocean Network Express (ONE)</option>
+            <option value="COSU">COSCO</option>
+            <option value="EGLV">Evergreen</option>
+            <option value="ZIMU">ZIM</option>
+            <option value="OOLU">OOCL</option>
+            <option value="YMLU">Yang Ming</option>
+            <option value="WHLC">Wan Hai</option>
+            <option value="SUDU">Hamburg Süd</option>
+            <option value="PILU">PIL</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="reference">CONTAINER / BL NUMBER</label>
+          <input id="reference" maxlength="35"
+            placeholder="e.g. MSCU1234567"
+            autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="trackBtn" class="primary" onclick="trackShipment()">
+          Track Shipment&nbsp; →
+        </button>
+        <button class="secondary" onclick="clearTracking()">Clear</button>
+      </div>
+      <div class="note">
+        Select the shipping line printed on your shipping documents.
+        Tracking availability depends on the provider and carrier.
+      </div>
+    </div>
+  </section>
+
+  <div id="notice" class="notice hidden" role="status"></div>
+
+  <section id="results" class="hidden">
+    <div class="result-head">
+      <div>
+        <h2 id="resultReference">Shipment Details</h2>
+        <div id="resultCarrier" class="muted"></div>
+      </div>
+      <div id="resultStatus" class="status">STATUS UNKNOWN</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Origin</div>
+        <div id="origin" class="value">—</div>
+        <div class="sub">Port of loading</div>
+      </div>
+      <div class="card">
+        <div class="label">Destination</div>
+        <div id="destination" class="value">—</div>
+        <div class="sub">Port of discharge</div>
+      </div>
+      <div class="card">
+        <div class="label">Estimated Arrival</div>
+        <div id="eta" class="value">—</div>
+        <div class="sub">Provider-reported ETA</div>
+      </div>
+      <div class="card">
+        <div class="label">Vessel</div>
+        <div id="vessel" class="value">—</div>
+        <div class="sub" id="voyage">Voyage —</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title">Shipment Overview</h3>
+      <div class="details" id="details"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3 class="section-title">Shipment Movement</h3>
+      <div id="timeline" class="timeline"></div>
+    </div>
+    <p id="lastUpdated" class="muted" style="margin-top:14px"></p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Container Track & Trace · Powered by an external tracking data provider.
+    Shipment details may be delayed or unavailable.
+  </div>
+</footer>
+
+<script>
+/* Replace this with your deployed Google Apps Script /exec URL. */
+const BACKEND_URL = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE";
+
+const $ = id => document.getElementById(id);
+
+function showNotice(message, isError = false) {
+  const box = $("notice");
+  box.textContent = message;
+  box.classList.remove("hidden", "error");
+  if (isError) box.classList.add("error");
+}
+
+function hideNotice() {
+  $("notice").classList.add("hidden");
+}
+
+function valueOf(obj, paths, fallback = "—") {
+  for (const path of paths) {
+    let value = obj;
+    for (const part of path.split(".")) {
+      value = value && value[part];
+    }
+    if (value !== undefined && value !== null && value !== "") {
+      if (typeof value === "object") continue;
+      return String(value);
+    }
+  }
+  return fallback;
+}
+
+function formatDate(value) {
+  if (!value || value === "—") return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString(undefined, {
+    year: "numeric", month: "short", day: "2-digit",
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
+function cleanStatus(value) {
+  return String(value || "Status unavailable")
+    .replace(/_/g, " ")
+    .toUpperCase();
+}
+
+function addDetail(label, value) {
+  const item = document.createElement("div");
+  item.className = "detail";
+
+  const title = document.createElement("div");
+  title.className = "label";
+  title.textContent = label;
+
+  const text = document.createElement("div");
+  text.className = "value";
+  text.textContent = value || "—";
+
+  item.append(title, text);
+  $("details").appendChild(item);
+}
+
+function addEvent(title, date, location, description) {
+  const event = document.createElement("div");
+  event.className = "event";
+
+  const dot = document.createElement("span");
+  dot.className = "dot";
+
+  const heading = document.createElement("div");
+  heading.className = "event-title";
+  heading.textContent = title || "Shipment event";
+
+  const meta = document.createElement("div");
+  meta.className = "event-meta";
+  meta.textContent = [formatDate(date), location, description]
+    .filter(x => x && x !== "—")
+    .join(" · ");
+
+  event.append(dot, heading, meta);
+  $("timeline").appendChild(event);
+}
+
+function renderShipment(raw, reference) {
+  const shipment = raw.data || raw.shipment || raw;
+  const carrier = shipment.carrier || {};
+  const vesselData = shipment.vessel || shipment.vessels || {};
+  const firstVessel = Array.isArray(vesselData)
+    ? (vesselData[0] || {}) : vesselData;
+
+  const origin = valueOf(shipment, [
+    "origin", "pol", "port_of_loading.name",
+    "origin.name", "route.origin"
+  ]);
+
+  const destination = valueOf(shipment, [
+    "destination", "pod", "port_of_discharge.name",
+    "destination.name", "route.destination"
+  ]);
+
+  const eta = valueOf(shipment, [
+    "eta", "estimated_arrival", "arrival.eta",
+    "port_of_discharge.eta"
+  ]);
+
+  const status = valueOf(shipment, [
+    "status", "shipment_status"
+  ], "Status unavailable");
+
+  $("results").classList.remove("hidden");
+  $("resultReference").textContent =
+    valueOf(shipment, ["reference_number", "container_number"], reference);
+
+  $("resultCarrier").textContent =
+    valueOf(shipment, ["sealine_name", "carrier.name"], "Shipping line") +
+    " · " + reference;
+
+  $("resultStatus").textContent = cleanStatus(status);
+  $("origin").textContent = origin;
+  $("destination").textContent = destination;
+  $("eta").textContent = formatDate(eta);
+  $("vessel").textContent = valueOf(firstVessel, [
+    "name", "vessel_name"
+  ], valueOf(shipment, ["vessel_name"], "—"));
+
+  $("voyage").textContent = "Voyage " +
+    valueOf(firstVessel, ["voyage", "voyage_number"], "—");
+
+  $("details").replaceChildren();
+  addDetail("Container / Reference", reference);
+  addDetail("Shipping Line", valueOf(shipment, [
+    "sealine_name", "carrier.name", "sealine"
+  ]));
+  addDetail("Shipment Status", cleanStatus(status));
+  addDetail("Origin", origin);
+  addDetail("Destination", destination);
+  addDetail("Estimated Arrival", formatDate(eta));
+  addDetail("Actual Arrival", formatDate(valueOf(shipment, [
+    "ata", "actual_arrival"
+  ], "")));
+  addDetail("Last Synced", formatDate(valueOf(shipment, [
+    "last_synced_at", "updated_at"
+  ], "")));
+
+  $("timeline").replaceChildren();
+
+  let events = shipment.events ||
+    shipment.milestones ||
+    shipment.tracking_events ||
+    [];
+
+  if (!Array.isArray(events)) events = [];
+
+  events.sort((a, b) => {
+    const da = new Date(a.date || a.event_date || a.timestamp || 0);
+    const db = new Date(b.date || b.event_date || b.timestamp || 0);
+    return db - da;
+  });
+
+  if (events.length) {
+    events.forEach(event => {
+      addEvent(
+        valueOf(event, [
+          "description", "event", "name", "status", "milestone"
+        ], "Shipment event"),
+        valueOf(event, [
+          "date", "event_date", "timestamp", "actual_date"
+        ], ""),
+        valueOf(event, [
+          "location", "location_name", "port"
+        ], ""),
+        valueOf(event, ["vessel_name"], "")
+      );
+    });
+  } else {
+    addEvent(
+      "No movement events supplied",
+      "",
+      "",
+      "The provider returned no event timeline for this response."
+    );
+  }
+
+  $("lastUpdated").textContent =
+    "Provider data only. Last synced: " +
+    formatDate(valueOf(shipment, ["last_synced_at", "updated_at"], ""));
+}
+
+function trackShipment() {
+  const reference = $("reference").value.trim().toUpperCase();
+  const sealine = $("sealine").value;
+
+  if (!reference) {
+    showNotice("Please enter a container number or BL number.", true);
+    $("reference").focus();
+    return;
+  }
+
+  if (!sealine) {
+    showNotice("Please select the shipping line.", true);
+    $("sealine").focus();
+    return;
+  }
+
+  if (BACKEND_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+    showNotice("Please add your deployed Apps Script /exec URL in index.html.", true);
+    return;
+  }
+
+  $("trackBtn").disabled = true;
+  $("trackBtn").textContent = "Searching shipment…";
+  $("results").classList.add("hidden");
+  showNotice("Contacting the tracking provider. This may take a few seconds.");
+
+  const callbackName = "trackingCallback_" + Date.now();
+
+  window[callbackName] = function(response) {
+    try {
+      if (!response || !response.success) {
+        showNotice(
+          response && response.message
+            ? response.message
+            : "Tracking failed. Please try again later.",
+          true
+        );
+        return;
+      }
+
+      hideNotice();
+      renderShipment(response.shipment || response.data || response, reference);
+    } catch (err) {
+      showNotice("The shipment response could not be displayed.", true);
+      console.error(err);
+    } finally {
+      $("trackBtn").disabled = false;
+      $("trackBtn").textContent = "Track Shipment →";
+      delete window[callbackName];
+    }
+  };
+
+  const script = document.createElement("script");
+  const params = new URLSearchParams({
+    action: "track",
+    referenceNumber: reference,
+    sealine: sealine,
+    callback: callbackName
+  });
+
+  script.src = BACKEND_URL + "?" + params.toString();
+  script.onerror = function() {
+    showNotice("Could not contact Apps Script. Check deployment URL and access.", true);
+    $("trackBtn").disabled = false;
+    $("trackBtn").textContent = "Track Shipment →";
+    delete window[callbackName];
+    script.remove();
+  };
+
+  script.onload = () => script.remove();
+  document.body.appendChild(script);
+}
+
+function clearTracking() {
+  $("reference").value = "";
+  $("sealine").value = "";
+  $("results").classList.add("hidden");
+  hideNotice();
+  $("reference").focus();
+}
+
+$("reference").addEventListener("keydown", event => {
+  if (event.key === "Enter") trackShipment();
+});
+</script>
+</body>
+</html>
+Step 6 — Publish aur test karein
+
+GitHub repository mein index.html save aur commit karein.
+
+GitHub Pages ka page refresh karein.
+
+Shipping line select karein, container number enter karein aur Track Shipment par click karein.
+
+Pehli test ke liye apna real container number use karein. Demo/sandbox references real shipment data nahi dikhate.
+
+Agar error aaye to uska matlab
+
+Error
+
+	
+
+Kya check karna hai
+
+
+
+
+API key is not configured
+
+	
+
+Script Properties mein TRAQO_API_KEY
+
+
+
+
+Enable Developer mode
+
+	
+
+Provider dashboard mein Developer mode
+
+
+
+
+Free shipment allowance may be exhausted
+
+	
+
+Free allowance/usage check karein; code koi paid upgrade nahi karta
+
+
+
+
+No shipment record
+
+	
+
+Container number aur shipping line verify karein
+
+
+
+
+Apps Script contact error
+
+	
+
+/exec URL, deployment aur access settings
+
+Yaad rahe: API key add karne ke baad Apps Script ko dobara deploy karna aam tor par zaroori nahi, lekin agar aap code badlein to Deploy → Manage deployments → Edit → New version → Deploy karein.
+
+Ye implementation live provider data milne par shipment status, ETA, vessel aur events display karegi. Har shipping line ya har container ka data milne ki guarantee nahi, aur free allowance ki limit provider control karta hai.
